@@ -280,16 +280,7 @@ export default function JornalSEMLanding() {
           <div className="grid lg:grid-cols-2 gap-8 lg:gap-16 xl:gap-20 items-center">
             {/* Left Column - Enhanced Content */}
             <div className="text-center lg:text-left order-2 lg:order-1">
-              {/* Enhanced Badge */}
-              <div className="inline-flex items-center mb-6 lg:mb-8">
-                <Badge className="bg-green-100 text-green-800 hover:bg-green-200 transition-all duration-300 rounded-full px-4 py-2 font-medium text-sm mr-3 hover:scale-105">
-                  ⭐ MÁS POPULAR
-                </Badge>
-                <div className="hidden lg:flex items-center text-sm text-gray-600">
-                  <Clock className="h-4 w-4 mr-1" />
-                  <span>Descarga inmediata</span>
-                </div>
-              </div>
+              {/* Removed the badge and download info as requested */}
 
               <h1 className="font-serif text-4xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-normal mb-6 lg:mb-8 text-gray-900 leading-tight">
                 Jornal de{" "}
@@ -316,22 +307,7 @@ export default function JornalSEMLanding() {
                 </div>
               </div>
 
-              {/* Enhanced Price Display */}
-              <div className="mb-8 lg:mb-10">
-                <div className="flex items-center justify-center lg:justify-start space-x-4 mb-4">
-                  <div className="font-serif text-5xl sm:text-6xl lg:text-7xl font-normal text-orange-600">$29</div>
-                  <div className="text-left">
-                    <div className="text-lg lg:text-xl text-gray-600">USD</div>
-                    <div className="text-sm text-gray-500">Pago único</div>
-                  </div>
-                </div>
-                <div className="text-center lg:text-left">
-                  <span className="text-sm text-gray-500 line-through mr-2">$49</span>
-                  <span className="text-sm font-medium text-green-600 bg-green-50 px-2 py-1 rounded-full">
-                    Ahorra $20 - Oferta limitada
-                  </span>
-                </div>
-              </div>
+              {/* Price section removed as requested */}
 
               {/* Enhanced CTA Buttons */}
               <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start mb-8">
@@ -342,14 +318,6 @@ export default function JornalSEMLanding() {
                 >
                   <BookOpen className="mr-2 h-5 w-5 transition-transform duration-300 group-hover:scale-110" />
                   {isLoading ? "Procesando..." : "Comprar Ahora"}
-                </Button>
-                <Button
-                  onClick={() => scrollToSection("incluye")}
-                  variant="outline"
-                  className="w-full sm:w-auto border-2 border-gray-300 text-gray-700 hover:bg-gray-50 rounded-full text-lg px-8 py-4 font-medium bg-white/60 backdrop-blur-sm min-h-[56px] transition-all duration-300 hover:scale-105 hover:shadow-md hover:border-gray-400 group"
-                >
-                  <ChevronDown className="mr-2 h-4 w-4 transition-transform duration-300 group-hover:scale-110" />
-                  Ver Detalles
                 </Button>
               </div>
             </div>
@@ -553,7 +521,7 @@ export default function JornalSEMLanding() {
           </Button>
 
           <p className="text-sm lg:text-base text-white/80 mt-4 lg:mt-6">
-            Descarga inmediata • Garantía de 30 días • Acceso de por vida • Sin suscripciones
+            Descarga inmediata • Acceso de por vida • Sin suscripciones
           </p>
         </div>
       </section>
@@ -618,22 +586,12 @@ export default function JornalSEMLanding() {
                     Inicio
                   </Link>
                 </li>
-                <li>
-                  <Link href="/about" className="hover:text-white transition-colors">
-                    Sobre Nosotros
-                  </Link>
-                </li>
-                <li>
-                  <Link href="/contact" className="hover:text-white transition-colors">
-                    Contacto
-                  </Link>
-                </li>
               </ul>
             </div>
           </div>
           <div className="border-t border-gray-800 pt-8 text-center text-gray-400">
             <p className="text-sm">
-              &copy; 2024 obe&liz.co - Educación cristocéntrica en el hogar. Todos los derechos reservados.
+              &copy; 2025 obe&liz.co - Educación cristocéntrica en el hogar. Todos los derechos reservados.
             </p>
           </div>
         </div>
