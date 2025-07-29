@@ -1,7 +1,7 @@
 [build]
   base = "obelizco_site_landingpage"  # Set the base directory where package.json is located
   command = "npm run build"  # Build the Next.js application
-  publish = "obelizco_site_landingpage/out"  # Output directory for static export
+  publish = "out"  # Output directory for static export (relative to base directory)
 
 [build.environment]
   NEXT_TELEMETRY_DISABLED = "1"
