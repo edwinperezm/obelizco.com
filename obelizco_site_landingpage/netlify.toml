@@ -1,0 +1,13 @@
+[build]
+  command = "npm run build"  # Build the Next.js application
+  publish = "out"  # Output directory for static export
+
+[build.environment]
+  NEXT_TELEMETRY_DISABLED = "1"
+
+# Handle client-side routing
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+  force = false
