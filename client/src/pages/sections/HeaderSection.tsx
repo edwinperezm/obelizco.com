@@ -1,10 +1,10 @@
 import { CheckIcon } from "lucide-react";
-import placeholder_svg_fill from "@assets/placeholder.svg-fill.png";
-import placeholder_svg_fill2 from "@assets/placeholder.svg-fill2.png";
-import placeholder_svg_fill3 from "@assets/placeholder.svg-fill3.png";
-import placeholder_svg_fill4 from "@assets/placeholder.svg-fill4.png";
+import placeholder_svg_fill from "@attached_assets/placeholder.svg-fill.png";
+import placeholder_svg_fill2 from "@attached_assets/placeholder.svg-fill2.png";
+import placeholder_svg_fill3 from "@attached_assets/placeholder.svg-fill3.png";
+import placeholder_svg_fill4 from "@attached_assets/placeholder.svg-fill4.png";
 
-import showroom_section from "@assets/showroom_section.webp";
+import showroom_section from "@attached_assets/showroom_section.webp";
 
 export const HeaderSection = (): JSX.Element => {
   // Feature images for each section - all different using actual assets
