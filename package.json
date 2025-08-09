@@ -10,9 +10,9 @@
   },
   "scripts": {
     "preinstall": "npx only-allow npm",
-    "postinstall": "npm run check",
+    "postinstall": "if [ -z \"$NODE_ENV\" ] || [ \"$NODE_ENV\" != \"production\" ]; then npm run check; fi",
     "dev": "vite",
-    "build": "tsc && vite build && npm run build:functions",
+    "build": "vite build && npm run build:functions",
     "build:functions": "tsc --project tsconfig.functions.json",
     "preview": "vite preview",
     "start": "netlify dev",

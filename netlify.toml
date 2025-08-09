@@ -1,5 +1,5 @@
 [build]
-  command = "npm install && npm run build"
+  command = "npm install --include=dev && npm run build"
   publish = "./dist"
   functions = "netlify/functions/dist"
 
@@ -11,7 +11,7 @@
   NODE_VERSION = "20"
   NPM_FLAGS = "--legacy-peer-deps"
   VITE_API_URL = "/.netlify/functions/api"
-  # Don't set NODE_ENV in build environment to ensure devDependencies are installed
+  NPM_CONFIG_PRODUCTION = "false"  # This ensures devDependencies are installed
 
 # SPA fallback
 [[redirects]]
