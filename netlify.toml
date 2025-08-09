@@ -6,18 +6,17 @@
   base = "/"
 
 [functions]
+  # Set the directory where the built functions are located
+  directory = "netlify/functions/dist"
+  
   # Set the Node.js version for Netlify Functions
   node_bundler = "esbuild"
   
-  # Environment variables for Netlify Functions
-  [functions.environment]
-    NODE_ENV = "production"
-    
   # Include source maps for better error reporting
   external_node_modules = ["@netlify/functions"]
-  
-  # Set the directory where the built functions are located
-  directory = "netlify/functions/dist"
+
+[functions.environment]
+  NODE_ENV = "production"
 
 # Environment variables
 [build.environment]
