@@ -13,24 +13,17 @@
   NODE_ENV = "production"
   VITE_API_URL = "/.netlify/functions/api"
 
+# SPA fallback
 [[redirects]]
   from = "/*"
   to = "/index.html"
   status = 200
-  force = false
+
+# API proxy
 [[redirects]]
   from = "/api/*"
   to = "/.netlify/functions/api/:splat"
   status = 200
-  force = true
-
-# Handle CORS preflight requests
-[[headers]]
-  for = "/api/*"
-  [headers.values]
-    Access-Control-Allow-Origin = "*"
-    Access-Control-Allow-Methods = "GET, POST, PUT, DELETE, OPTIONS"
-    Access-Control-Allow-Headers = "Content-Type, Authorization"
 
 # Security headers
 [[headers]]
@@ -50,52 +43,11 @@
     Access-Control-Allow-Methods = "GET, POST, PUT, DELETE, OPTIONS"
     Access-Control-Allow-Headers = "Content-Type, Authorization"
 
-# Sitemap and robots.txt handling
-[[redirects]]
-  from = "/sitemap.xml"
-  to = "/sitemap.xml"
-  status = 200
-
-[[redirects]]
-  from = "/robots.txt"
-  to = "/robots.txt"
-  status = 200
-
 # Cache control for static assets
 [[headers]]
   for = "/assets/*"
   [headers.values]
     Cache-Control = "public, max-age=31536000, immutable"
-
-# Security headers for API responses
-[[headers]]
-  for = "/*.js"
-  [headers.values]
-    X-Content-Type-Options = "nosniff"
-    X-Frame-Options = "DENY"
-    Referrer-Policy = "strict-origin-when-cross-origin"
-
-# Enable CORS for development
-[[headers]]
-  for = "/*"
-  [headers.values]
-    Access-Control-Allow-Origin = "*"
-    Access-Control-Allow-Methods = "GET, POST, PUT, DELETE, OPTIONS"
-    Access-Control-Allow-Headers = "Content-Type, Authorization"
-
-# Handle 404s for SPA
-[[redirects]]
-  from = "/*"
-  to = "/index.html"
-  status = 404
-  force = false
-
-# Handle 403s for SPA
-[[redirects]]
-  from = "/*"
-  to = "/index.html"
-  status = 403
-  force = false
 
 # Handle 500s for SPA
 [[redirects]]
