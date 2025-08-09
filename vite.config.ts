@@ -22,7 +22,8 @@ export default defineConfig(({ mode }) => {
       alias: [
         { find: '@', replacement: path.resolve(__dirname, 'client/src') },
         { find: '@shared', replacement: path.resolve(__dirname, 'shared') },
-        { find: '@assets', replacement: path.resolve(__dirname, 'client/public') }
+        { find: '@assets', replacement: path.resolve(__dirname, 'client/public') },
+        { find: '@attached_assets', replacement: path.resolve(__dirname, 'attached_assets') }
       ]
     },
     

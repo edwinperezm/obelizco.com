@@ -1,8 +1,7 @@
 import { CreditCardIcon, DownloadIcon } from "lucide-react";
-import React from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import papaEducandoImg from "@assets/Papa_educando.jpg";
+import papaEducandoImg from "@attached_assets/Papa_educando.jpg";
 
 export const FeaturesSection = (): JSX.Element => {
   return (
