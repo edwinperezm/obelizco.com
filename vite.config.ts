@@ -7,7 +7,9 @@ export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), '');
   
   return {
+    root: 'client',
     base: '/',
+    publicDir: path.resolve(__dirname, 'client/public'),
     plugins: [react()],
     
     define: {
@@ -20,12 +22,12 @@ export default defineConfig(({ mode }) => {
       alias: [
         { find: '@', replacement: path.resolve(__dirname, 'client/src') },
         { find: '@shared', replacement: path.resolve(__dirname, 'shared') },
-        { find: '@assets', replacement: path.resolve(__dirname, 'attached_assets') }
+        { find: '@assets', replacement: path.resolve(__dirname, 'client/public') }
       ]
     },
     
     build: {
-      outDir: 'dist/public',
+      outDir: path.resolve(__dirname, 'dist/public'),
       emptyOutDir: true,
       sourcemap: mode !== 'production',
       minify: mode === 'production' ? 'esbuild' : false,
