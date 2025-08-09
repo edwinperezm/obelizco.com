@@ -1,102 +1,23 @@
-# Global build settings
 [build]
-  command = "npm run build && cd netlify/functions && npm install && npm run build && cd ../.."
-  publish = "./dist"
-  functions = "./netlify/functions/dist"
-  base = "/"
-
-[functions]
-  # Set the directory where the built functions are located
-  directory = "netlify/functions/dist"
-  
-  # Set the Node.js version for Netlify Functions
-  node_bundler = "esbuild"
-  
-  # Include source maps for better error reporting
-  external_node_modules = ["@netlify/functions"]
-
-[functions.environment]
-  NODE_ENV = "production"
-
-# Environment variables
-[build.environment]
-  # Node.js version
-  NODE_VERSION = "20"
-  
-  # NPM configuration
-  NPM_FLAGS = "--legacy-peer-deps"
-  NPM_VERBOSE = "true"
-  NPM_CONFIG_PRODUCTION = "false"
-  
-  # Security settings
-  SECRETS_SCAN_ENABLED = "true"
-  
-  # Build settings
-  NETLIFY_USE_YARN = "false"
-  YARN_FLAGS = ""
-  YARN_VERBOSE = "false"
-  YARN_NETWORK_TIMEOUT = "600000"
-  
-  # Application environment variables
-  NODE_ENV = "production"
-  
-  # Build environment variables
-  VITE_API_URL = "/.netlify/functions/api"
-  
-  # These values should be set in Netlify UI
-  VITE_STRIPE_PUBLISHABLE_KEY = ""
-  FRONTEND_URL = ""
-  
-  # Server-side environment variables
-  STRIPE_SECRET_KEY = ""
-  STRIPE_WEBHOOK_SECRET = ""
-  SESSION_SECRET = ""
-  
-  # Build optimization
-  NODE_OPTIONS = "--max_old_space_size=4096"
-  
-  # Enable source maps for debugging
-  GENERATE_SOURCEMAP = "true"
-
-# Environment-specific settings
-[context.production]
   command = "npm run build"
   publish = "./dist"
-  [context.production.environment]
-    NODE_ENV = "production"
+  functions = "netlify/functions/dist"
 
-[context.deploy-preview]
-  [context.deploy-preview.environment]
-    NODE_ENV = "development"
+[functions]
+  directory = "netlify/functions/dist"
+  node_bundler = "esbuild"
 
-[context.branch-deploy]
-  [context.branch-deploy.environment]
-    NODE_ENV = "development"
+[build.environment]
+  NODE_VERSION = "20"
+  NPM_FLAGS = "--legacy-peer-deps"
+  NODE_ENV = "production"
+  VITE_API_URL = "/.netlify/functions/api"
 
-# Development server settings
-[dev]
-  framework = "#custom"
-  command = "npm run dev"
-  port = 5173
-  targetPort = 5173
-  publish = "./dist"
-  
-  # Environment variables for development
-  [dev.environment]
-    NODE_ENV = "development"
-    VITE_API_URL = "http://localhost:5001"
-    VITE_STRIPE_PUBLISHABLE_KEY = ""
-    FRONTEND_URL = "http://localhost:5173"
-
-# Redirects for SPA and API
 [[redirects]]
   from = "/*"
   to = "/index.html"
   status = 200
   force = false
-  conditions = {Role = "!Function"}
-
-# API routes
 [[redirects]]
   from = "/api/*"
   to = "/.netlify/functions/api/:splat"
