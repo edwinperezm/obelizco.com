@@ -1,29 +1,51 @@
 [build]
   command = "npm run build"
   publish = "./dist"
+  environment = {}
 
 [build.environment]
   NODE_VERSION = "22"
   NPM_FLAGS = "--legacy-peer-deps"
   NPM_VERBOSE = "true"
-  NPM_CONFIG_PRODUCTION = "false"  # Ensure devDependencies are installed
+  NPM_CONFIG_PRODUCTION = "false"
   
   # Security settings
-  SECRETS_SCAN_OMIT_KEYS = "false"  # Set to true if you need to bypass secret scanning (not recommended)
+  SECRETS_SCAN_OMIT_KEYS = "false"
+  SECRETS_SCAN_OMIT_PATHS = "vite.config.ts,.env.production.template"
   
-  # Environment variables (set these in Netlify UI or through environment variables)
+  # These will be overridden by Netlify UI environment variables
   VITE_STRIPE_PUBLISHABLE_KEY = ""
-  STRIPE_SECRET_KEY = ""  # This should be set in Netlify UI, not in this file
+  VITE_API_URL = "/.netlify/functions/api"
   FRONTEND_URL = ""
-
-[context.production.environment]
   NODE_ENV = "production"
 
-[context.deploy-preview.environment]
-  NODE_ENV = "development"
+[context.production]
+  command = "npm run build"
+  publish = "./dist"
+  environment = { NODE_ENV = "production" }
 
-[context.branch-deploy.environment]
-  NODE_ENV = "development"
+[context.deploy-preview]
+  environment = { NODE_ENV = "development" }
+
+[context.branch-deploy]
+  environment = { NODE_ENV = "development" }
+
+# Disable the default build image's dependency caching
+[build.environment]
+  NETLIFY_USE_YARN = "false"
+  YARN_FLAGS = ""
+  YARN_VERBOSE = "false"
+  YARN_NETWORK_TIMEOUT = "600000"
+  
+# Configure build plugins
+[[plugins]]
+  package = "@netlify/plugin-lighthouse"
+  
+# Redirect all requests to index.html for SPA routing
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
 
 [[redirects]]
   from = "/*"
