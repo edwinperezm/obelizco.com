@@ -1,11 +1,29 @@
 [build]
-  command = "npm install --include=dev && npm run build"
-  publish = "dist"
+  command = "npm run build"
+  publish = "./dist"
 
 [build.environment]
   NODE_VERSION = "22"
   NPM_FLAGS = "--legacy-peer-deps"
   NPM_VERBOSE = "true"
+  NPM_CONFIG_PRODUCTION = "false"  # Ensure devDependencies are installed
+  
+  # Security settings
+  SECRETS_SCAN_OMIT_KEYS = "false"  # Set to true if you need to bypass secret scanning (not recommended)
+  
+  # Environment variables (set these in Netlify UI or through environment variables)
+  VITE_STRIPE_PUBLISHABLE_KEY = ""
+  STRIPE_SECRET_KEY = ""  # This should be set in Netlify UI, not in this file
+  FRONTEND_URL = ""
+
+[context.production.environment]
+  NODE_ENV = "production"
+
+[context.deploy-preview.environment]
+  NODE_ENV = "development"
+
+[context.branch-deploy.environment]
+  NODE_ENV = "development"
 
 [[redirects]]
   from = "/*"
