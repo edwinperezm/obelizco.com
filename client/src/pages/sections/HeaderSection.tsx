@@ -1,8 +1,8 @@
 import { CheckIcon } from "lucide-react";
-import placeholder_svg_fill from "@assets/placeholder.svg fill.png";
-import placeholder_svg_fill2 from "@assets/placeholder.svg fill2.png";
-import placeholder_svg_fill3 from "@assets/placeholder.svg fill3.png";
-import placeholder_svg_fill4 from "@assets/placeholder.svg fill4.png";
+import placeholder_svg_fill from "@assets/placeholder.svg-fill.png";
+import placeholder_svg_fill2 from "@assets/placeholder.svg-fill2.png";
+import placeholder_svg_fill3 from "@assets/placeholder.svg-fill3.png";
+import placeholder_svg_fill4 from "@assets/placeholder.svg-fill4.png";
 
 import showroom_section from "@assets/showroom_section.webp";
 
