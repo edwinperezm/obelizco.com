@@ -1,105 +1,84 @@
 import { defineConfig, loadEnv } from 'vite';
 import react from '@vitejs/plugin-react';
 import path from 'path';
-import { fileURLToPath } from 'url';
-import { dirname } from 'path';
-import type { UserConfig, PluginOption } from 'vite';
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
-
-// Create a safe wrapper for the runtime error overlay
-async function getRuntimeErrorOverlay(): Promise<PluginOption | null> {
-  if (process.env.NODE_ENV === 'production') {
-    return null;
-  }
-  try {
-    const { default: runtimeErrorOverlay } = await import('@replit/vite-plugin-runtime-error-modal');
-    return runtimeErrorOverlay();
-  } catch (error) {
-    console.warn('Failed to load runtime error overlay:', error);
-    return null;
-  }
-}
 
 // https://vitejs.dev/config/
-export default defineConfig(async ({ mode }) => {
-  // Load env file based on `mode` in the current directory
+export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), '');
   
-  const plugins: PluginOption[] = [react()];
-
-  // Add development-only plugins
-  if (mode !== 'production') {
-    const overlay = await getRuntimeErrorOverlay();
-    if (overlay) {
-      plugins.push(overlay);
-    }
-
-    if (env.REPL_ID) {
-      try {
-        const { cartographer } = await import('@replit/vite-plugin-cartographer');
-        plugins.push(cartographer());
-      } catch (error) {
-        console.warn('Failed to load cartographer plugin:', error);
-      }
-    }
-  }
-  const config: UserConfig = {
+  return {
+    base: '/',
+    plugins: [react()],
+    
     define: {
       'import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY': JSON.stringify(env.VITE_STRIPE_PUBLISHABLE_KEY || ''),
       'import.meta.env.FRONTEND_URL': JSON.stringify(env.FRONTEND_URL || 'http://localhost:5173'),
+      'import.meta.env.VITE_API_URL': JSON.stringify(env.VITE_API_URL || 'http://localhost:5001'),
     },
-    plugins,
+    
     resolve: {
-      alias: {
-        '@': path.resolve(__dirname, 'client', 'src'),
-        '@shared': path.resolve(__dirname, 'shared'),
-        '@assets': path.resolve(__dirname, 'attached_assets'),
-      },
+      alias: [
+        { find: '@', replacement: path.resolve(__dirname, 'client/src') },
+        { find: '@shared', replacement: path.resolve(__dirname, 'shared') },
+        { find: '@assets', replacement: path.resolve(__dirname, 'attached_assets') }
+      ]
     },
-    root: path.resolve(__dirname, 'client'),
+    
     build: {
-      outDir: path.resolve(__dirname, 'dist/public'),
+      outDir: 'dist/public',
       emptyOutDir: true,
-      target: 'es2022',
-      minify: 'esbuild',
       sourcemap: mode !== 'production',
+      minify: mode === 'production' ? 'esbuild' : false,
       rollupOptions: {
+        input: path.resolve(__dirname, 'client/index.html'),
         output: {
+          entryFileNames: 'assets/[name]-[hash].js',
+          chunkFileNames: 'assets/[name]-[hash].js',
+          assetFileNames: 'assets/[name]-[hash][extname]',
           manualChunks: {
             react: ['react', 'react-dom', 'react-router-dom'],
-            vendor: ['lodash', 'date-fns'],
-          },
-        },
-      },
+            vendor: ['@radix-ui/react-dialog', '@radix-ui/react-dropdown-menu']
+          }
+        }
+      }
     },
+    
     server: {
       port: 5173,
+      open: true,
       strictPort: true,
+      proxy: {
+        '/api': {
+          target: 'http://localhost:5001',
+          changeOrigin: true,
+          secure: false
+        }
+      },
       fs: {
         strict: true,
         allow: [
           path.resolve(__dirname, 'client'),
           path.resolve(__dirname, 'shared'),
+          path.resolve(__dirname, 'node_modules'),
           path.resolve(__dirname, 'attached_assets'),
         ],
         deny: ['.env', '.env.*', '*.{pem,crt}'],
       },
     },
+    
     preview: {
       port: 5173,
       strictPort: true,
     },
+    
     optimizeDeps: {
       esbuildOptions: {
         target: 'es2022',
       },
     },
+    
     esbuild: {
       target: 'es2022',
     },
   };
-
-  return config;
 });
