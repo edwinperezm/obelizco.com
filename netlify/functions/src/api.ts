@@ -51,12 +51,24 @@ export const handler: Handler = async (
       if (!event.body) {
         return json(400, { error: 'Request body is required' });
       }
-      const response = await createCheckoutSession(event, context);
-      if (response) {
+      try {
+        const response = await createCheckoutSession(event, context);
+        if (!response) {
+          throw new Error('Failed to create checkout session');
+        }
         return response;
+      } catch (error) {
+        logger.error('Error in checkout handler', { 
+          error: error instanceof Error ? error.message : 'Unknown error',
+          stack: error instanceof Error ? error.stack : undefined 
+        });
+        return json(500, { 
+          error: 'Internal Server Error',
+          ...(process.env.NODE_ENV !== 'production' && { 
+            details: error instanceof Error ? error.message : 'Unknown error' 
+          })
+        });
       }
-      // Fallback response if createCheckoutSession returns undefined
-      return json(500, { error: 'Failed to create checkout session' });
     }
 
     // No matching route
