@@ -1,9 +1,4 @@
 import type { Handler, HandlerContext } from '@netlify/functions';
-import { 
-  createErrorResponse,
-  createSuccessResponse,
-  ErrorCode
-} from '../middleware/errorHandler';
 import { getEnv } from '../utils/types';
 import { createRequestLogger } from '../utils/logger';
 
@@ -95,22 +90,11 @@ export const healthCheckHandler: Handler = async (event, context: HandlerContext
 
     logger.info('Health check successful', { status: 'ok' });
     
-    const successResponse = createSuccessResponse(response);
-    if (successResponse) {
-      return successResponse;
-    }
-    
-    // Fallback response if createSuccessResponse returns undefined
+    // Directly return the response with proper typing
     return {
       statusCode: 200,
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        status: 'ok',
-        timestamp: response.timestamp,
-        uptime: response.uptime,
-        environment: response.environment,
-        nodeVersion: response.nodeVersion
-      })
+      body: JSON.stringify(response)
     };
   } catch (error: unknown) {
     const errorMessage = error instanceof Error ? error.message : 'Unknown error';
@@ -119,25 +103,17 @@ export const healthCheckHandler: Handler = async (event, context: HandlerContext
       stack: error instanceof Error ? error.stack : undefined 
     });
     
-    const errorResponse = createErrorResponse(
-      500,
-      'Health check failed',
-      ErrorCode.INTERNAL_SERVER_ERROR,
-      process.env.NODE_ENV === 'production' ? undefined : { message: errorMessage }
-    );
-    
-    if (errorResponse) {
-      return errorResponse;
-    }
-    
-    // Fallback error response
+    // Return error response directly
     return {
       statusCode: 500,
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         status: 'error',
         message: 'Health check failed',
-        ...(process.env.NODE_ENV !== 'production' && { error: errorMessage })
+        ...(process.env.NODE_ENV !== 'production' && { 
+          error: errorMessage,
+          stack: error instanceof Error ? error.stack : undefined
+        })
       })
     };
   }
