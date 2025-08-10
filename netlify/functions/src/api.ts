@@ -49,9 +49,18 @@ const apiHandler: Handler = async (event: HandlerEvent, context: HandlerContext)
     // If no route found, return 404
     if (!route) {
       const response = await notFoundHandler(event, context);
-      return response || {
+      if (response) {
+        return response;
+      }
+      return {
         statusCode: 404,
-        body: JSON.stringify({ error: 'Not Found' })
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ 
+          status: 'error',
+          message: 'Not Found'
+        })
       };
     }
     
@@ -62,6 +71,16 @@ const apiHandler: Handler = async (event: HandlerEvent, context: HandlerContext)
       throw new Error('Handler did not return a response');
     }
     
+    // Ensure response has required fields
+    const validResponse: HandlerResponse = {
+      statusCode: response.statusCode || 200,
+      headers: {
+        'Content-Type': 'application/json',
+        ...(response.headers || {})
+      },
+      body: response.body || JSON.stringify({ status: 'success' })
+    };
+    
     // Log the successful response
     logger.info(`[${httpMethod}] ${path} - ${response.statusCode}`, {
       event: 'api_response',
@@ -70,7 +89,7 @@ const apiHandler: Handler = async (event: HandlerEvent, context: HandlerContext)
       statusCode: response.statusCode,
     });
     
-    return response;
+    return validResponse;
   } catch (error: unknown) {
     const errorMessage = isError(error) ? error.message : 'An unknown error occurred';
     const errorStack = isError(error) ? error.stack : undefined;
@@ -104,5 +123,33 @@ const apiHandler: Handler = async (event: HandlerEvent, context: HandlerContext)
   }
 };
 
-// Export the handler with middleware
-export const handler = corsMiddleware(errorHandler(apiHandler));
+// Helper function to ensure the handler returns a Promise<HandlerResponse>
+const ensureHandler = (handler: Handler): ((event: HandlerEvent, context: HandlerContext) => Promise<HandlerResponse>) => {
+  return async (event: HandlerEvent, context: HandlerContext): Promise<HandlerResponse> => {
+    const result = await handler(event, context);
+    if (!result) {
+      return {
+        statusCode: 500,
+        body: JSON.stringify({ error: 'Internal Server Error' }),
+        headers: { 'Content-Type': 'application/json' }
+      };
+    }
+    return result;
+  };
+};
+
+// Create a properly typed handler chain
+const createHandler = (): ((event: HandlerEvent, context: HandlerContext) => Promise<HandlerResponse>) => {
+  // Start with the API handler
+  let handler: (event: HandlerEvent, context: HandlerContext) => Promise<HandlerResponse> = 
+    ensureHandler(apiHandler);
+  
+  // Apply CORS middleware
+  handler = corsMiddleware(handler as any) as any;
+  
+  // Apply error handler
+  return errorHandler(handler as any) as any;
+};
+
+// Export the configured handler
+export const handler = createHandler();
