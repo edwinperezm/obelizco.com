@@ -1,4 +1,4 @@
-import type { Handler, HandlerContext } from '@netlify/functions';
+import type { Handler, HandlerContext, HandlerResponse } from '@netlify/functions';
 import { getEnv } from '../utils/types';
 import { createRequestLogger } from '../utils/logger';
 
@@ -47,7 +47,7 @@ const formatBytes = (bytes: number, decimals = 2): string => {
 /**
  * Health check handler
  */
-export const healthCheckHandler: Handler = async (event, context: HandlerContext) => {
+export const healthCheckHandler: Handler = async (event, context: HandlerContext): Promise<HandlerResponse> => {
   const logger = createRequestLogger(context);
   
   try {
@@ -90,7 +90,6 @@ export const healthCheckHandler: Handler = async (event, context: HandlerContext
 
     logger.info('Health check successful', { status: 'ok' });
     
-    // Directly return the response with proper typing
     return {
       statusCode: 200,
       headers: { 'Content-Type': 'application/json' },
@@ -103,7 +102,6 @@ export const healthCheckHandler: Handler = async (event, context: HandlerContext
       stack: error instanceof Error ? error.stack : undefined 
     });
     
-    // Return error response directly
     return {
       statusCode: 500,
       headers: { 'Content-Type': 'application/json' },

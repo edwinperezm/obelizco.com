@@ -25,15 +25,15 @@ export const handler: Handler = async (
   event: HandlerEvent,
   context: HandlerContext
 ): Promise<HandlerResponse> => {
-  const logger = createRequestLogger(context);
   const { httpMethod, path } = event;
+  const logger = createRequestLogger(context);
+
+  // Handle preflight requests
+  if (httpMethod === 'OPTIONS') {
+    return json(204);
+  }
 
   try {
-    // Handle preflight requests
-    if (httpMethod === 'OPTIONS') {
-      return json(204);
-    }
-
     // Log the incoming request
     logger.info(`[${httpMethod}] ${path}`, {
       event: 'api_request',
@@ -43,61 +43,38 @@ export const handler: Handler = async (
 
     // Route handlers
     if (httpMethod === 'GET' && path === '/api/health') {
-      const response = await healthCheckHandler(event, context);
-      return response || json(200, { status: 'ok' });
+      return await healthCheckHandler(event, context);
     }
 
     if (httpMethod === 'POST' && path === '/api/payments/create-checkout-session') {
       if (!event.body) {
         return json(400, { error: 'Request body is required' });
       }
-      try {
-        const response = await createCheckoutSession(event, context);
-        if (!response) {
-          throw new Error('Failed to create checkout session');
-        }
-        return response;
-      } catch (error) {
-        logger.error('Error in checkout handler', { 
-          error: error instanceof Error ? error.message : 'Unknown error',
-          stack: error instanceof Error ? error.stack : undefined 
-        });
-        return json(500, { 
-          error: 'Internal Server Error',
-          ...(process.env.NODE_ENV !== 'production' && { 
-            details: error instanceof Error ? error.message : 'Unknown error' 
-          })
-        });
-      }
+      return await createCheckoutSession(event, context);
     }
 
     // No matching route
     return json(404, { 
       error: 'Not Found',
-      path,
-      method: httpMethod
+      message: `No route found for ${httpMethod} ${path}`
     });
 
-  } catch (error: unknown) {
-    const errorMessage = isError(error) ? error.message : 'An unknown error occurred';
-    const errorStack = isError(error) ? error.stack : undefined;
+  } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+    const errorStack = error instanceof Error ? error.stack : undefined;
     
-    // Log the error with additional context
-    logger.error(`[${httpMethod}] ${path} - Error: ${errorMessage}`, { 
-      error: errorMessage,
-      stack: errorStack,
-      requestId: context.awsRequestId,
+    logger.error(`API Error: ${errorMessage}`, { 
       path,
-      method: httpMethod
+      method: httpMethod,
+      stack: errorStack 
     });
     
-    // Return error response
     return json(500, {
       status: 'error',
       message: 'Internal Server Error',
       ...(process.env.NODE_ENV !== 'production' && { 
         error: errorMessage,
-        ...(errorStack && { stack: errorStack })
+        stack: errorStack
       }),
       timestamp: new Date().toISOString(),
       requestId: context.awsRequestId,
