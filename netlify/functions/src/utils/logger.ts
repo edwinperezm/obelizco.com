@@ -180,4 +180,5 @@ export const logResponse = (
   });
 };
 
-export default logger;
+// Named export for the logger
+export { logger };

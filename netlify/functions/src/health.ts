@@ -1,5 +1,5 @@
 import { Handler } from '@netlify/functions';
-import logger from './utils/logger';
+import { logger } from './utils/logger';
 import * as os from 'os';
 
 // Define memory usage type

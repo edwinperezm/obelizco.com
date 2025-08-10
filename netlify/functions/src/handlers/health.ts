@@ -1,4 +1,4 @@
-import { Handler } from '@netlify/functions';
+import type { Handler, HandlerContext } from '@netlify/functions';
 import { 
   createErrorResponse,
   createSuccessResponse,
@@ -52,11 +52,16 @@ const formatBytes = (bytes: number, decimals = 2): string => {
 /**
  * Health check handler
  */
-export const healthCheckHandler: Handler = async (event, context) => {
+export const healthCheckHandler: Handler = async (event, context: HandlerContext) => {
   const logger = createRequestLogger(context);
   
   try {
     const memoryUsage = process.memoryUsage();
+    
+    // Ensure event is used to avoid TypeScript warning
+    if (event) {
+      logger.debug('Health check request received', { path: event.path });
+    }
     
     const response: HealthCheckResponse = {
       status: 'ok',
@@ -90,20 +95,19 @@ export const healthCheckHandler: Handler = async (event, context) => {
 
     logger.info('Health check successful', { status: 'ok' });
     
-    return createSuccessResponse(response, {
-      'Cache-Control': 'no-cache, no-store, must-revalidate',
-      'Pragma': 'no-cache',
-      'Expires': '0',
+    return createSuccessResponse(response);
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+    logger.error('Health check failed', { 
+      error: errorMessage,
+      stack: error instanceof Error ? error.stack : undefined 
     });
-  } catch (error) {
-    logger.error('Health check failed', { error });
     
     return createErrorResponse(
-      503,
-      'Service Unavailable',
-      ErrorCode.SERVICE_UNAVAILABLE,
-      { reason: 'Health check failed' },
-      context.awsRequestId
+      500,
+      'Health check failed',
+      ErrorCode.INTERNAL_SERVER_ERROR,
+      process.env.NODE_ENV === 'production' ? undefined : { message: errorMessage }
     );
   }
 };

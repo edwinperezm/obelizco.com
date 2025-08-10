@@ -80,10 +80,11 @@ export const isDate = (value: unknown): value is Date => {
  */
 export const isPromise = <T = unknown>(value: unknown): value is Promise<T> => {
   return (
-    isObject(value) &&
+    value !== null &&
+    typeof value === 'object' &&
     'then' in value &&
-    isFunction((value as Promise<unknown>).then) &&
     'catch' in value &&
+    isFunction((value as Promise<unknown>).then) &&
     isFunction((value as Promise<unknown>).catch)
   );
 };

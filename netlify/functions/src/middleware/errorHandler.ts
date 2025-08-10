@@ -1,6 +1,16 @@
-import { HandlerResponse } from '@netlify/functions';
+import type { Handler, HandlerContext, HandlerEvent, HandlerResponse } from '@netlify/functions';
 import { createRequestLogger } from '../utils/logger';
 import { isError } from '../utils/error';
+
+// Error handler utility functions
+function isErrorWithErrors(error: unknown): error is { errors: unknown[] } {
+  return Boolean(
+    error &&
+    typeof error === 'object' &&
+    'errors' in error &&
+    Array.isArray((error as any).errors)
+  );
+}
 
 /**
  * Error response interface
@@ -85,6 +95,32 @@ export class ApiError extends Error {
 }
 
 /**
+ * Create a success response
+ */
+export function createSuccessResponse(
+  data: unknown = null,
+  statusCode = 200,
+  message = 'Success'
+): HandlerResponse {
+  return {
+    statusCode,
+    body: JSON.stringify({
+      status: 'success',
+      message,
+      data,
+      timestamp: new Date().toISOString()
+    }),
+    headers: {
+      'Content-Type': 'application/json',
+      'Cache-Control': 'no-cache, no-store, must-revalidate',
+      'X-Content-Type-Options': 'nosniff',
+      'X-Frame-Options': 'DENY',
+      'X-XSS-Protection': '1; mode=block'
+    }
+  };
+}
+
+/**
  * Create an error response
  */
 export const createErrorResponse = (
@@ -119,68 +155,115 @@ export const createErrorResponse = (
 /**
  * Error handling middleware for Netlify Functions
  */
-export const errorHandler = (handler: Function) => {
-  return async (event: any, context: any): Promise<HandlerResponse> => {
+export const errorHandler = (handler: Handler) => {
+  return async (event: HandlerEvent, context: HandlerContext): Promise<HandlerResponse> => {
     const logger = createRequestLogger(context);
     
     try {
       // Log the incoming request
-      logRequest(event, context);
+      logger.info(`[${event.httpMethod}] ${event.path}`, {
+        event: 'request_received',
+        method: event.httpMethod,
+        path: event.path,
+        query: event.queryStringParameters,
+        headers: event.headers
+      });
       
       // Execute the handler
       const response = await handler(event, context);
       
-      // Log the successful response
-      logResponse(response.statusCode, event, context);
+      if (!response) {
+        throw new Error('Handler did not return a response');
+      }
       
-      return response;
-    } catch (error) {
-      // Log the error
-      logger.error('Unhandled error in API handler', {
-        error: isError(error) ? error.message : 'Unknown error',
-        stack: isError(error) ? error.stack : undefined,
-        event,
+      // Log the successful response
+      logger.info(`[${event.httpMethod}] ${event.path} - ${response.statusCode}`, {
+        event: 'response_sent',
+        method: event.httpMethod,
+        path: event.path,
+        statusCode: response.statusCode
       });
       
-      // Handle known API errors
-      if (error instanceof ApiError) {
-        return createErrorResponse(
-          error.statusCode,
-          error.message,
-          error.code,
-          error.details,
-          context?.awsRequestId
-        );
+      return response;
+    } catch (error: unknown) {
+      // Handle standard Error objects
+      if (isError(error)) {
+        const { message, name, stack } = error;
+        
+        logger.error('Unhandled error in API handler', {
+          error: message,
+          name,
+          stack,
+          event: {
+            httpMethod: event.httpMethod,
+            path: event.path,
+            query: event.queryStringParameters
+          },
+        });
+        
+        // Handle known API errors
+        if (error instanceof ApiError) {
+          return createErrorResponse(
+            error.statusCode,
+            error.message,
+            error.code as ErrorCode,
+            error.details,
+            context?.awsRequestId
+          );
+        }
+        
+        // Handle JWT errors
+        if (name === 'JsonWebTokenError' || name === 'TokenExpiredError') {
+          return createErrorResponse(
+            401,
+            'Invalid or expired token',
+            ErrorCode.UNAUTHORIZED,
+            { reason: message },
+            context?.awsRequestId
+          );
+        }
+        
+        // Handle validation errors (e.g., from express-validator)
+        if (isErrorWithErrors(error)) {
+          return createErrorResponse(
+            400,
+            'Validation error',
+            ErrorCode.VALIDATION_ERROR,
+            error.errors,
+            context?.awsRequestId
+          );
+        }
+        
+        // Handle generic errors with status codes
+        if (error && typeof error === 'object' && 'statusCode' in error && typeof (error as any).statusCode === 'number') {
+          return createErrorResponse(
+            (error as any).statusCode,
+            message,
+            (error as any).code || ErrorCode.INTERNAL_SERVER_ERROR,
+            (error as any).details,
+            context?.awsRequestId
+          );
+        }
       }
       
-      // Handle validation errors (e.g., from express-validator)
-      if (Array.isArray(error?.errors)) {
-        return createErrorResponse(
-          400,
-          'Validation error',
-          ErrorCode.VALIDATION_ERROR,
-          error.errors,
-          context?.awsRequestId
-        );
-      }
+      // Handle non-Error objects
+      const errorMessage = 'An unexpected error occurred';
+      logger.error('Unhandled non-Error in API handler', {
+        error: errorMessage,
+        originalError: error,
+        event: {
+          httpMethod: event.httpMethod,
+          path: event.path,
+          query: event.queryStringParameters
+        },
+      });
       
-      // Handle JWT errors
-      if (error?.name === 'JsonWebTokenError' || error?.name === 'TokenExpiredError') {
-        return createErrorResponse(
-          401,
-          'Invalid or expired token',
-          ErrorCode.UNAUTHORIZED,
-          { reason: error.message },
-          context?.awsRequestId
-        );
-      }
-      
-      // Default to 500 for unhandled errors
+      // Return a generic 500 error for unhandled cases
       return createErrorResponse(
         500,
-        'An unexpected error occurred',
+        errorMessage,
         ErrorCode.INTERNAL_SERVER_ERROR,
-        process.env.NODE_ENV === 'production' ? undefined : error?.message,
+        process.env.NODE_ENV === 'production' ? undefined : error,
         context?.awsRequestId
       );
     }

@@ -1,5 +1,8 @@
-import { HandlerResponse } from '@netlify/functions';
+import type { HandlerContext, HandlerEvent, HandlerResponse } from '@netlify/functions';
 import { createRequestLogger } from '../utils/logger';
+
+// Extended Handler type that includes the context parameter
+type ExtendedHandler = (event: HandlerEvent, context: HandlerContext) => Promise<HandlerResponse>;
 
 type HttpMethod = 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE' | 'OPTIONS' | 'HEAD';
 
@@ -66,9 +69,10 @@ const defaultOptions: Required<CorsOptions> = {
 /**
  * Normalize origins to an array
  */
-const normalizeOrigins = (origin: string | string[] | undefined): string[] => {
+const normalizeOrigins = (origin: string | string[] | ((origin: string) => string | null | undefined) | undefined): string[] => {
   if (!origin) return [];
   if (Array.isArray(origin)) return origin;
+  if (typeof origin === 'function') return []; // Handle function case
   if (origin === '*') return ['*'];
   return origin.split(/\s*,\s*/);
 };
@@ -85,10 +89,7 @@ const isOriginAllowed = (origin: string, allowedOrigins: string[]): boolean => {
       return origin === allowed;
     }
     
-    if (allowed instanceof RegExp) {
-      return allowed.test(origin);
-    }
-    
+    // Since we've normalized the origins, we don't expect RegExp here
     return false;
   });
 };
@@ -98,7 +99,7 @@ const isOriginAllowed = (origin: string, allowedOrigins: string[]): boolean => {
  */
 const setCorsHeaders = (
   response: HandlerResponse,
-  event: any,
+  event: HandlerEvent,
   options: Required<CorsOptions>,
   allowedOrigin: string
 ): void => {
@@ -143,12 +144,13 @@ const setCorsHeaders = (
 /**
  * CORS middleware for Netlify Functions
  */
+// CORS middleware factory
 export const cors = (options: CorsOptions = {}) => {
   const opts: Required<CorsOptions> = { ...defaultOptions, ...options };
   const allowedOrigins = normalizeOrigins(opts.origin);
   
-  return (handler: Function) => {
-    return async (event: any, context: any): Promise<HandlerResponse> => {
+  return (handler: ExtendedHandler) => {
+    return async (event: HandlerEvent, context: HandlerContext): Promise<HandlerResponse> => {
       const logger = createRequestLogger(context);
       const requestOrigin = event.headers?.origin || event.headers?.Origin || '';
       
@@ -183,9 +185,28 @@ export const cors = (options: CorsOptions = {}) => {
         }
         
         return response;
-      } catch (error) {
-        logger.error('CORS middleware error:', error);
-        throw error;
+      } catch (error: unknown) {
+        const errorMessage = error instanceof Error ? error.message : 'Unknown CORS error';
+        logger.error('CORS middleware error:', { 
+          error: errorMessage,
+          stack: error instanceof Error ? error.stack : undefined 
+        });
+        
+        // Return a proper error response
+        return {
+          statusCode: 500,
+          body: JSON.stringify({ 
+            status: 'error',
+            message: 'Internal server error',
+            ...(process.env.NODE_ENV !== 'production' && { details: errorMessage })
+          }),
+          headers: {
+            'Content-Type': 'application/json',
+            'Access-Control-Allow-Origin': isOriginAllowed(requestOrigin, allowedOrigins) ? 
+              (requestOrigin || '*') : '*',
+            ...(opts.credentials && { 'Access-Control-Allow-Credentials': 'true' })
+          }
+        };
       }
     };
   };

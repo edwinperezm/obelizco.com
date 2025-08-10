@@ -16,8 +16,8 @@ export interface ExtendedHandlerContext extends HandlerContext {
 /**
  * Extended handler event with parsed body and query parameters
  */
-export interface ExtendedHandlerEvent extends HandlerEvent {
-  body?: any;
+export interface ExtendedHandlerEvent extends Omit<HandlerEvent, 'body'> {
+  body: any; // Make body required as it's required in HandlerEvent
   query?: Record<string, string>;
   params?: Record<string, string>;
   user?: {
