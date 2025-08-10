@@ -95,7 +95,23 @@ export const healthCheckHandler: Handler = async (event, context: HandlerContext
 
     logger.info('Health check successful', { status: 'ok' });
     
-    return createSuccessResponse(response);
+    const successResponse = createSuccessResponse(response);
+    if (successResponse) {
+      return successResponse;
+    }
+    
+    // Fallback response if createSuccessResponse returns undefined
+    return {
+      statusCode: 200,
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        status: 'ok',
+        timestamp: response.timestamp,
+        uptime: response.uptime,
+        environment: response.environment,
+        nodeVersion: response.nodeVersion
+      })
+    };
   } catch (error: unknown) {
     const errorMessage = error instanceof Error ? error.message : 'Unknown error';
     logger.error('Health check failed', { 
@@ -103,12 +119,27 @@ export const healthCheckHandler: Handler = async (event, context: HandlerContext
       stack: error instanceof Error ? error.stack : undefined 
     });
     
-    return createErrorResponse(
+    const errorResponse = createErrorResponse(
       500,
       'Health check failed',
       ErrorCode.INTERNAL_SERVER_ERROR,
       process.env.NODE_ENV === 'production' ? undefined : { message: errorMessage }
     );
+    
+    if (errorResponse) {
+      return errorResponse;
+    }
+    
+    // Fallback error response
+    return {
+      statusCode: 500,
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        status: 'error',
+        message: 'Health check failed',
+        ...(process.env.NODE_ENV !== 'production' && { error: errorMessage })
+      })
+    };
   }
 };
 

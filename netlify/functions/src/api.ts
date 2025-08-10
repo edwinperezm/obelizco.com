@@ -1,95 +1,71 @@
 import type { Handler, HandlerEvent, HandlerContext, HandlerResponse } from '@netlify/functions';
-import { healthCheckHandler } from './handlers/health';
-import { errorHandler, notFoundHandler } from './middleware/errorHandler';
-import { corsMiddleware } from './middleware/cors';
+import { healthCheckHandler, createCheckoutSession } from './handlers';
 import { createRequestLogger } from './utils/logger';
 import { isError } from './utils/error';
 
-/**
- * Route definitions
- */
-interface Route {
-  method: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE' | 'OPTIONS' | 'HEAD';
-  path: `/${string}`;
-  handler: Handler;
-}
-
-const routes: Route[] = [
-  // Health check endpoint
-  {
-    method: 'GET',
-    path: '/api/health',
-    handler: healthCheckHandler,
+// Helper function to create consistent responses
+const json = (
+  statusCode: number, 
+  data?: unknown, 
+  extraHeaders: Record<string, string> = {}
+): HandlerResponse => ({
+  statusCode,
+  headers: {
+    'content-type': 'application/json',
+    'access-control-allow-origin': '*',
+    'access-control-allow-methods': 'GET,POST,OPTIONS',
+    'access-control-allow-headers': 'Content-Type,Authorization',
+    ...extraHeaders,
   },
-  // Add more routes here
-];
+  body: data === undefined ? '' : JSON.stringify(data),
+});
 
-/**
- * Main API handler
- */
-const apiHandler: Handler = async (event: HandlerEvent, context: HandlerContext): Promise<HandlerResponse> => {
+// Main API handler
+export const handler: Handler = async (
+  event: HandlerEvent,
+  context: HandlerContext
+): Promise<HandlerResponse> => {
   const logger = createRequestLogger(context);
   const { httpMethod, path } = event;
-  
+
   try {
+    // Handle preflight requests
+    if (httpMethod === 'OPTIONS') {
+      return json(204);
+    }
+
     // Log the incoming request
     logger.info(`[${httpMethod}] ${path}`, {
       event: 'api_request',
       method: httpMethod,
       path,
     });
-    
-    // Find a matching route
-    const route = routes.find(
-      (r) => 
-        r.method === httpMethod && 
-        (r.path === path || new RegExp(`^${r.path.replace(/\//g, '\\/')}(\/.*)?$`).test(path))
-    );
-    
-    // If no route found, return 404
-    if (!route) {
-      const response = await notFoundHandler(event, context);
+
+    // Route handlers
+    if (httpMethod === 'GET' && path === '/api/health') {
+      const response = await healthCheckHandler(event, context);
+      return response || json(200, { status: 'ok' });
+    }
+
+    if (httpMethod === 'POST' && path === '/api/payments/create-checkout-session') {
+      if (!event.body) {
+        return json(400, { error: 'Request body is required' });
+      }
+      const response = await createCheckoutSession(event, context);
       if (response) {
         return response;
       }
-      return {
-        statusCode: 404,
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ 
-          status: 'error',
-          message: 'Not Found'
-        })
-      };
+      // Fallback response if createCheckoutSession returns undefined
+      return json(500, { error: 'Failed to create checkout session' });
     }
-    
-    // Execute the route handler
-    const response = await route.handler(event, context);
-    
-    if (!response) {
-      throw new Error('Handler did not return a response');
-    }
-    
-    // Ensure response has required fields
-    const validResponse: HandlerResponse = {
-      statusCode: response.statusCode || 200,
-      headers: {
-        'Content-Type': 'application/json',
-        ...(response.headers || {})
-      },
-      body: response.body || JSON.stringify({ status: 'success' })
-    };
-    
-    // Log the successful response
-    logger.info(`[${httpMethod}] ${path} - ${response.statusCode}`, {
-      event: 'api_response',
-      method: httpMethod,
+
+    // No matching route
+    return json(404, { 
+      error: 'Not Found',
       path,
-      statusCode: response.statusCode,
+      method: httpMethod
     });
-    
-    return validResponse;
+
   } catch (error: unknown) {
     const errorMessage = isError(error) ? error.message : 'An unknown error occurred';
     const errorStack = isError(error) ? error.stack : undefined;
@@ -104,52 +80,15 @@ const apiHandler: Handler = async (event: HandlerEvent, context: HandlerContext)
     });
     
     // Return error response
-    return {
-      statusCode: 500,
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        status: 'error',
-        message: 'Internal Server Error',
-        ...(process.env.NODE_ENV !== 'production' && { 
-          error: errorMessage,
-          ...(errorStack && { stack: errorStack })
-        }),
-        timestamp: new Date().toISOString(),
-        requestId: context.awsRequestId,
+    return json(500, {
+      status: 'error',
+      message: 'Internal Server Error',
+      ...(process.env.NODE_ENV !== 'production' && { 
+        error: errorMessage,
+        ...(errorStack && { stack: errorStack })
       }),
-    };
+      timestamp: new Date().toISOString(),
+      requestId: context.awsRequestId,
+    });
   }
 };
-
-// Helper function to ensure the handler returns a Promise<HandlerResponse>
-const ensureHandler = (handler: Handler): ((event: HandlerEvent, context: HandlerContext) => Promise<HandlerResponse>) => {
-  return async (event: HandlerEvent, context: HandlerContext): Promise<HandlerResponse> => {
-    const result = await handler(event, context);
-    if (!result) {
-      return {
-        statusCode: 500,
-        body: JSON.stringify({ error: 'Internal Server Error' }),
-        headers: { 'Content-Type': 'application/json' }
-      };
-    }
-    return result;
-  };
-};
-
-// Create a properly typed handler chain
-const createHandler = (): ((event: HandlerEvent, context: HandlerContext) => Promise<HandlerResponse>) => {
-  // Start with the API handler
-  let handler: (event: HandlerEvent, context: HandlerContext) => Promise<HandlerResponse> = 
-    ensureHandler(apiHandler);
-  
-  // Apply CORS middleware
-  handler = corsMiddleware(handler as any) as any;
-  
-  // Apply error handler
-  return errorHandler(handler as any) as any;
-};
-
-// Export the configured handler
-export const handler = createHandler();
