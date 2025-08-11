@@ -7,9 +7,10 @@ export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), '');
   
   return {
-    root: 'client',
+    root: './client',
     base: '/',
     publicDir: path.resolve(__dirname, 'client/public'),
+    
     plugins: [
       react(),
       {
@@ -33,8 +34,8 @@ export default defineConfig(({ mode }) => {
     
     define: {
       'import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY': JSON.stringify(env.VITE_STRIPE_PUBLISHABLE_KEY || ''),
-      'import.meta.env.FRONTEND_URL': JSON.stringify(env.FRONTEND_URL || 'http://localhost:5173'),
-      'import.meta.env.VITE_API_URL': JSON.stringify(env.VITE_API_URL || 'http://localhost:5001'),
+      'import.meta.env.FRONTEND_URL': JSON.stringify(env.FRONTEND_URL || 'http://localhost:3000'),
+      'import.meta.env.VITE_API_URL': JSON.stringify(env.VITE_API_URL || 'http://localhost:5000'),
     },
     
     resolve: {
@@ -47,7 +48,7 @@ export default defineConfig(({ mode }) => {
     },
     
     build: {
-      outDir: 'dist/public',
+      outDir: '../dist/public',
       emptyOutDir: true,
       sourcemap: mode !== 'production',
       minify: mode === 'production' ? 'esbuild' : false,
@@ -83,7 +84,7 @@ export default defineConfig(({ mode }) => {
         '/api': {
           target: 'http://localhost:5000',  // Backend port
           changeOrigin: true,
-          rewrite: (path) => path.replace(/^\/api/, '/.netlify/functions/api')
+          rewrite: (path) => path.replace(/^\/api/, '')
         }
       },
       fs: {

@@ -11,7 +11,8 @@
 [build.environment]
   NODE_VERSION = "20"
   NPM_FLAGS = "--legacy-peer-deps"
-  VITE_API_URL = ""
+  VITE_API_URL = "/.netlify/functions"
+  FRONTEND_URL = "https://obelizco.com"
   NPM_CONFIG_PRODUCTION = "false"
 
 [dev]
@@ -22,17 +23,17 @@
   publish = "dist/public"
   autoLaunch = true
 
-# API proxy
-[[redirects]]
-  from = "/api/*"
-  to = "/.netlify/functions/:splat"
-  status = 200
-  force = true
-
-# SPA fallback
+# Handle all requests - must come first
 [[redirects]]
   from = "/*"
   to = "/index.html"
+  status = 200
+  force = true
+
+# API proxy - must come after the SPA fallback
+[[redirects]]
+  from = "/api/*"
+  to = "/.netlify/functions/:splat"
   status = 200
   force = true
 
