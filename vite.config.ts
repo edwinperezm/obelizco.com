@@ -22,6 +22,10 @@ export default defineConfig(({ mode }) => {
               <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
               <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Geist:wght@300;400;600;700&family=Instrument+Sans:wght@600&family=Inter&display=swap" rel="stylesheet">
             `
+          ).replace(
+            '</body>',
+            `  <script type="text/javascript" src="https://replit.com/public/js/replit-dev-banner.js" async></script>
+            </body>`
           );
         },
       },
@@ -47,6 +51,7 @@ export default defineConfig(({ mode }) => {
       emptyOutDir: true,
       sourcemap: mode !== 'production',
       minify: mode === 'production' ? 'esbuild' : false,
+      cssCodeSplit: true,  // Ensure CSS is properly split
       rollupOptions: {
         input: path.resolve(__dirname, 'client/index.html'),
         output: {
