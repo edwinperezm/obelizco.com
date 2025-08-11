@@ -3,25 +3,35 @@
   publish = "dist/public"
   functions = "netlify/functions/dist"
 
-[functions]
-  directory = "netlify/functions/dist"
-  node_bundler = "esbuild"
-  external_node_modules = ["@netlify/functions"]
-
 [build.environment]
   NODE_VERSION = "20"
   NPM_FLAGS = "--legacy-peer-deps"
-  VITE_API_URL = "/.netlify/functions"
-  FRONTEND_URL = "https://obelizco.com"
   NPM_CONFIG_PRODUCTION = "false"
 
 [dev]
   framework = "#custom"
   command = "npm run dev"
-  targetPort = 3000
-  port = 5000
+  targetPort = 5173
+  port = 8888
   publish = "dist/public"
-  autoLaunch = true
+  functions = "netlify/functions/dist"
+
+[build.processing]
+  skip_processing = false
+
+[build.processing.html]
+  pretty_urls = true
+
+[build.processing.css]
+  bundle = true
+  minify = true
+
+[build.processing.js]
+  bundle = true
+  minify = true
+
+[build.processing.images]
+  compress = true
 
 # Handle static assets first
 [[headers]]
@@ -31,29 +41,37 @@
     Access-Control-Allow-Origin = "*"
     Content-Type = ""  # Let Netlify auto-detect MIME type
 
-# Handle all requests - must come after static assets
-[[redirects]]
-  from = "/*"
-  to = "/index.html"
-  status = 200
-  force = true
+# Security headers
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Frame-Options = "DENY"
+    X-XSS-Protection = "1; mode=block"
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+    Content-Security-Policy = """
+      default-src 'self';
+      script-src 'self' 'unsafe-inline' 'unsafe-eval' https://js.stripe.com https://replit.com;
+      style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
+      img-src 'self' data: https://*.stripe.com;
+      font-src 'self' https://fonts.gstatic.com data:;
+      connect-src 'self' https://api.stripe.com;
+      frame-src 'self' https://js.stripe.com https://hooks.stripe.com;
+    """
 
-# API proxy - must come after the SPA fallback
+# API redirects
 [[redirects]]
   from = "/api/*"
   to = "/.netlify/functions/:splat"
   status = 200
   force = true
 
-# Security headers
-[[headers]]
-  for = "/*"
-  [headers.values]
-    X-Frame-Options = "DENY"
-    X-Content-Type-Options = "nosniff"
-    X-XSS-Protection = "1; mode=block"
-    Referrer-Policy = "strict-origin-when-cross-origin"
-    Content-Security-Policy = "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://js.stripe.com https://replit.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; img-src 'self' data: https://*.stripe.com; font-src 'self' https://fonts.gstatic.com data:; connect-src 'self' https://api.stripe.com; frame-src 'self' https://js.stripe.com https://hooks.stripe.com;"
+# SPA fallback
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+  force = true
 
 # CORS headers for API
 [[headers]]
@@ -62,3 +80,7 @@
     Access-Control-Allow-Origin = "*"
     Access-Control-Allow-Methods = "GET, POST, PUT, DELETE, OPTIONS"
     Access-Control-Allow-Headers = "Content-Type, Authorization"
+
+[context.production.environment]
+  SECRETS_SCAN_OMIT_PATHS = "dist/**,.git/**,node_modules/**,.netlify/**"
+  SECRETS_SCAN_OMIT_KEYS = "NODE_ENV"
