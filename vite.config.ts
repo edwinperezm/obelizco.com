@@ -51,20 +51,22 @@ export default defineConfig(({ mode }) => {
       emptyOutDir: true,
       sourcemap: mode !== 'production',
       minify: mode === 'production' ? 'esbuild' : false,
-      cssCodeSplit: true,  // Ensure CSS is properly split
+      cssCodeSplit: true,
       rollupOptions: {
         input: path.resolve(__dirname, 'client/index.html'),
         output: {
           entryFileNames: 'assets/[name]-[hash].js',
           chunkFileNames: 'assets/[name]-[hash].js',
           assetFileNames: 'assets/[name]-[hash][extname]',
-          manualChunks: {
-            react: ['react', 'react-dom', 'react-router-dom'],
-            vendor: ['@radix-ui/react-dialog', '@radix-ui/react-dropdown-menu']
-          }
-        }
+        },
       },
-      base: './',
+    },
+    
+    css: {
+      devSourcemap: true,
+      modules: {
+        localsConvention: 'camelCaseOnly',
+      },
     },
     
     server: {
