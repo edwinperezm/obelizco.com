@@ -12,13 +12,13 @@
   NODE_VERSION = "20"
   NPM_FLAGS = "--legacy-peer-deps"
   VITE_API_URL = ""  # Will be set based on environment
-  NPM_CONFIG_PRODUCTION = "false"  # This ensures devDependencies are installed
+  NPM_CONFIG_PRODUCTION = "false"
 
 [dev]
   framework = "#custom"
-  command = "npm run dev"  # Command to start the development server
-  targetPort = 3000       # Frontend port
-  port = 5000             # Backend port for Netlify Dev
+  command = "npm run dev"
+  targetPort = 3000
+  port = 5000
   publish = "dist/public"
   autoLaunch = true
 
@@ -29,7 +29,7 @@
   status = 200
   force = true
 
-# SPA fallback - must come after API routes
+# SPA fallback - handle client-side routing
 [[redirects]]
   from = "/*"
   to = "/index.html"
@@ -59,14 +59,3 @@
   for = "/assets/*"
   [headers.values]
     Cache-Control = "public, max-age=31536000, immutable"
-
-# Handle 500s for SPA
-[[redirects]]
-  from = "/*"
-  to = "/index.html"
-  status = 500
-  force = false
-
-# Plugins
-[[plugins]]
-  package = "@netlify/plugin-lighthouse"

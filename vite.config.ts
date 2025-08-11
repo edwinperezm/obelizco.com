@@ -43,7 +43,8 @@ export default defineConfig(({ mode }) => {
             vendor: ['@radix-ui/react-dialog', '@radix-ui/react-dropdown-menu']
           }
         }
-      }
+      },
+      base: './',
     },
     
     server: {
