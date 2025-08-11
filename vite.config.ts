@@ -52,12 +52,17 @@ export default defineConfig(({ mode }) => {
       sourcemap: mode !== 'production',
       minify: mode === 'production' ? 'esbuild' : false,
       cssCodeSplit: true,
+      chunkSizeWarningLimit: 1000,
       rollupOptions: {
         input: path.resolve(__dirname, 'client/index.html'),
         output: {
           entryFileNames: 'assets/[name]-[hash].js',
           chunkFileNames: 'assets/[name]-[hash].js',
           assetFileNames: 'assets/[name]-[hash][extname]',
+          manualChunks: {
+            react: ['react', 'react-dom', 'react-router-dom'],
+            vendor: ['@radix-ui/react-dialog', '@radix-ui/react-dropdown-menu']
+          }
         },
       },
     },
