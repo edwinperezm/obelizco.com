@@ -10,7 +10,22 @@ export default defineConfig(({ mode }) => {
     root: 'client',
     base: '/',
     publicDir: path.resolve(__dirname, 'client/public'),
-    plugins: [react()],
+    plugins: [
+      react(),
+      {
+        name: 'inject-google-fonts',
+        transformIndexHtml(html) {
+          return html.replace(
+            '<head>',
+            `<head>
+              <link rel="preconnect" href="https://fonts.googleapis.com">
+              <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+              <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Geist:wght@300;400;600;700&family=Instrument+Sans:wght@600&family=Inter&display=swap" rel="stylesheet">
+            `
+          );
+        },
+      },
+    ],
     
     define: {
       'import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY': JSON.stringify(env.VITE_STRIPE_PUBLISHABLE_KEY || ''),
