@@ -5,6 +5,7 @@ import { FeaturesSection } from "./sections/FeaturesSection";
 import { HeaderSection } from "./sections/HeaderSection";
 import { JournalSection } from "./sections/JournalSection";
 import { SubscriptionSection } from "./sections/SubscriptionSection";
+import { handleCheckout, PRODUCTS } from "@/utils/checkout";
 
 export const ElementDefault = (): JSX.Element => {
   return (
@@ -22,6 +23,7 @@ export const ElementDefault = (): JSX.Element => {
           <Button
             variant="default"
             className="bg-orange-500 rounded-full hover:bg-orange-600"
+            onClick={() => handleCheckout(PRODUCTS.journal.name, PRODUCTS.journal.price, PRODUCTS.journal.currency)}
           >
             <span className="[font-family:'Geist',Helvetica] font-semibold text-white text-sm">
               Comprar Ahora

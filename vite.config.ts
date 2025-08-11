@@ -47,14 +47,15 @@ export default defineConfig(({ mode }) => {
     },
     
     server: {
-      port: 5173,
-      open: true,
-      strictPort: true,
+      port: 3000,  // Frontend port
+      strictPort: true,  // Don't try another port if in use
+      host: true,  // Listen on all network interfaces
+      open: true,  // Open browser on server start
       proxy: {
         '/api': {
-          target: 'http://localhost:5001',
+          target: 'http://localhost:5000',  // Backend port
           changeOrigin: true,
-          secure: false
+          rewrite: (path) => path.replace(/^\/api/, '/.netlify/functions/api')
         }
       },
       fs: {

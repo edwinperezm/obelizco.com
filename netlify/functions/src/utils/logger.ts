@@ -1,7 +1,5 @@
 import winston, { format } from 'winston';
 import { HandlerContext } from '@netlify/functions';
-import fs from 'fs';
-import path from 'path';
 
 const { combine, timestamp, json, errors, printf } = format;
 
@@ -67,58 +65,31 @@ const consoleFormat = format.combine(
   })
 );
 
-// Format for JSON output in production
-const jsonFormat = combine(
-  timestamp({ format: 'YYYY-MM-DD HH:mm:ss' }),
-  errors({ stack: true }),
-  json()
-);
-
-// Create logs directory if it doesn't exist
-const logsDir = path.join(process.cwd(), 'logs');
-
-if (!fs.existsSync(logsDir)) {
-  fs.mkdirSync(logsDir, { recursive: true });
-}
-
-// Create a logger instance
+// Create a Winston logger with console transport only
 const logger = winston.createLogger({
   level: process.env.NODE_ENV === 'production' ? 'info' : 'debug',
   levels,
-  format: process.env.NODE_ENV === 'production' ? jsonFormat : consoleFormat,
-  defaultMeta: { 
-    service: 'netlify-function',
-    env: process.env.NODE_ENV || 'development',
-  },
+  format: combine(
+    timestamp(),
+    errors({ stack: true }),
+    json()
+  ),
   transports: [
     // Console transport for all environments
-    new winston.transports.Console(),
-    
-    // File transports for production
-    ...(process.env.NODE_ENV === 'production' ? [
-      // Error logs
-      new winston.transports.File({ 
-        filename: path.join(logsDir, 'error.log'),
-        level: 'error',
-        maxsize: 5 * 1024 * 1024, // 5MB
-        maxFiles: 5,
-      }),
-      // Combined logs
-      new winston.transports.File({ 
-        filename: path.join(logsDir, 'combined.log'),
-        maxsize: 5 * 1024 * 1024, // 5MB
-        maxFiles: 5,
-      })
-    ] : [])
-  ],
-  exceptionHandlers: [
-    new winston.transports.File({ 
-      filename: path.join(logsDir, 'exceptions.log'),
-      maxsize: 5 * 1024 * 1024, // 5MB
-      maxFiles: 5,
+    new winston.transports.Console({
+      format: consoleFormat,
     }),
   ],
-  exitOnError: false, // Do not exit on handled exceptions
+  exceptionHandlers: [
+    new winston.transports.Console({
+      format: consoleFormat,
+    }),
+  ],
+  rejectionHandlers: [
+    new winston.transports.Console({
+      format: consoleFormat,
+    }),
+  ],
 });
 
 // If we're not in production, log to the console with colors

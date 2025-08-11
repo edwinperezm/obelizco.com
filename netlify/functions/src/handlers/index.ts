@@ -1,7 +1,3 @@
-// Export all handlers
-export * from './health';
-export * from './checkout';
-
-// Named exports
-export { healthCheckHandler } from './health';
-export { createCheckoutSession } from './checkout';
+// Re-export handlers
+export { handler as healthCheckHandler } from './health';
+export { handler as createCheckoutSession } from './checkout';

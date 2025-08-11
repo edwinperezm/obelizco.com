@@ -1,37 +1,40 @@
 [build]
-  command = "cd client && npm install --include=dev && cd .. && npm run build"
-  publish = "dist/public"
+  command = "npm run build"
+  publish = "dist"
   functions = "netlify/functions/dist"
 
 [functions]
   directory = "netlify/functions/dist"
   node_bundler = "esbuild"
+  external_node_modules = ["@netlify/functions"]
 
 [build.environment]
   NODE_VERSION = "20"
   NPM_FLAGS = "--legacy-peer-deps"
-  VITE_API_URL = "/.netlify/functions/api"
+  VITE_API_URL = ""  # Will be set based on environment
   NPM_CONFIG_PRODUCTION = "false"  # This ensures devDependencies are installed
 
 [dev]
-  framework = "vite"
-  target = "static"
-  command = "npm run dev"
-  port = 8888  # Changed from 5173 to avoid conflict
-  publish = "dist/public"
-  functions = "netlify/functions/dist"
+  framework = "#custom"
+  command = "npm run dev"  # Command to start the development server
+  targetPort = 3000       # Frontend port
+  port = 5000             # Backend port for Netlify Dev
+  publish = "dist"
+  autoLaunch = true
 
-# SPA fallback
+# API proxy - must come before the SPA fallback
+[[redirects]]
+  from = "/api/*"
+  to = "/.netlify/functions/:splat"
+  status = 200
+  force = true
+
+# SPA fallback - must come after API routes
 [[redirects]]
   from = "/*"
   to = "/index.html"
   status = 200
-
-# API proxy
-[[redirects]]
-  from = "/api/*"
-  to = "/.netlify/functions/api/:splat"
-  status = 200
+  force = true
 
 # Security headers
 [[headers]]

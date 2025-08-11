@@ -33,12 +33,10 @@
     }
   },
   "include": [
-    "netlify/functions/**/*.ts",
-    "netlify/functions/**/*.d.ts"
+    "netlify/functions/src/**/*.ts"
   ],
   "exclude": [
     "node_modules",
-    "dist",
     "**/*.test.ts",
     "**/*.spec.ts"
   ]

@@ -2,6 +2,7 @@ import { CreditCardIcon, DownloadIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import papaEducandoImg from "@attached_assets/Papa_educando.jpg";
+import { handleCheckout, PRODUCTS } from "@/utils/checkout";
 
 export const FeaturesSection = (): JSX.Element => {
   return (
@@ -43,7 +44,10 @@ export const FeaturesSection = (): JSX.Element => {
               </div>
             </div>
 
-            <Button className="h-14 px-8 py-4 rounded-full border-b-2 [border-bottom-style:solid] border-[#cdcdcd] shadow-[10px_10px_20px_#0000001a] bg-gradient-to-b from-white to-[#dedede] hover:from-white hover:to-[#d0d0d0]">
+            <Button 
+              className="h-14 px-8 py-4 rounded-full border-b-2 [border-bottom-style:solid] border-[#cdcdcd] shadow-[10px_10px_20px_#0000001a] bg-gradient-to-b from-white to-[#dedede] hover:from-white hover:to-[#d0d0d0]"
+              onClick={() => handleCheckout(PRODUCTS.journal.name, PRODUCTS.journal.price, PRODUCTS.journal.currency)}
+            >
               <div className="[font-family:'Instrument_Sans',Helvetica] font-semibold text-[#e54f01] text-lg text-center leading-7 whitespace-nowrap">
                 Obtener Journal
               </div>

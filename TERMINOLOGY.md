@@ -1,5 +1,33 @@
 # Project Terminology
 
+## Core Technologies
+
+### Frontend Stack
+- **Vite**: Next Generation Frontend Tooling
+- **React**: JavaScript library for building user interfaces
+- **TypeScript**: Typed JavaScript for better developer experience
+- **Tailwind CSS**: Utility-first CSS framework
+- **Netlify**: Cloud platform for web applications and static websites
+
+### Backend Stack
+- **Netlify Functions**: Serverless functions for backend logic
+- **Stripe**: Payment processing platform
+- **Drizzle ORM**: TypeScript ORM for database operations
+- **PostgreSQL**: Primary database (via Supabase)
+
+## API Architecture
+
+### Endpoints
+- `GET /api/health`: Health check endpoint
+- `POST /api/payments/create-checkout-session`: Create a new Stripe checkout session
+- `POST /api/webhooks/stripe`: Stripe webhook handler for payment events
+
+### Request/Response Flow
+1. Frontend makes API calls to Netlify Functions
+2. Functions handle business logic and database operations
+3. Responses are returned in a consistent JSON format
+4. Error handling follows RESTful conventions
+
 ## Payment Processing
 
 ### Stripe Integration
@@ -22,31 +50,67 @@
 ## Environment Variables
 
 ### Required for Development
-```
+```env
+# Application
 NODE_ENV=development
+FRONTEND_URL=http://localhost:3000
+
+# Stripe
 VITE_STRIPE_PUBLISHABLE_KEY=pk_test_...
 STRIPE_SECRET_KEY=sk_test_...
-FRONTEND_URL=http://localhost:3000
+STRIPE_WEBHOOK_SECRET=whsec_test_...
+
+# Database (if using local DB)
+# DATABASE_URL=postgresql://user:password@localhost:5432/obelizco
 ```
 
 ### Required for Production
-```
+```env
+# Application
 NODE_ENV=production
+FRONTEND_URL=https://yourdomain.com
+
+# Stripe
 VITE_STRIPE_PUBLISHABLE_KEY=pk_live_...
 STRIPE_SECRET_KEY=sk_live_...
-FRONTEND_URL=https://yourdomain.com
-STRIPE_WEBHOOK_SECRET=whsec_...
+STRIPE_WEBHOOK_SECRET=whsec_live_...
+
+# Database (Netlify environment variables)
+# DATABASE_URL=postgresql://user:password@host:5432/dbname
 ```
 
 ## Project Structure
 
 ### Frontend (Client)
-- `/src/pages/`: Contains all page components
-  - `SuccessPage.tsx`: Shown after successful payment
-  - `CanceledPage.tsx`: Shown when payment is canceled
-  - `CheckoutPage.tsx`: Handles the checkout process
-- `/src/components/`: Reusable UI components
-- `/src/lib/`: Utility functions and configurations
+```
+src/
+├── components/     # Reusable UI components
+├── pages/          # Page components
+│   ├── Checkout/   # Checkout flow
+│   ├── Success/    # Success page
+│   └── Canceled/   # Canceled payment page
+├── lib/
+│   ├── api/        # API client and types
+│   └── utils/      # Utility functions
+└── styles/         # Global styles and Tailwind config
+```
+
+### Backend (Netlify Functions)
+```
+netlify/
+└── functions/
+    └── src/
+        ├── handlers/     # Request handlers
+        ├── db/           # Database models and migrations
+        ├── lib/          # Shared utilities
+        └── types/        # TypeScript type definitions
+```
+
+### Key Files
+- `vite.config.ts`: Vite configuration
+- `tailwind.config.js`: Tailwind CSS configuration
+- `tsconfig.json`: TypeScript configuration
+- `netlify.toml`: Netlify deployment configuration
 
 ### Backend (Server)
 - `/server/routes/`: API route handlers

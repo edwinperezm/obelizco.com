@@ -1,6 +1,6 @@
 # Obelizco Website
 
-A modern website built with Vite, React, TypeScript, and Netlify Functions.
+A modern e-commerce website built with Vite, React, TypeScript, and Netlify Functions. This project features a seamless payment integration with Stripe and follows best practices for serverless architecture.
 
 ## 🚀 Getting Started
 
@@ -8,46 +8,71 @@ A modern website built with Vite, React, TypeScript, and Netlify Functions.
 
 - Node.js 20.x or later
 - npm 9.x or later
-- Netlify CLI (optional, for local development)
+- Netlify CLI (for local development)
+- Stripe account (for payment processing)
+- PostgreSQL database (local or remote)
 
-### Installation
+### Local Development Setup
 
-1. Clone the repository:
+1. **Clone the repository**:
    ```bash
    git clone https://github.com/edwinperezm/obelizco.com.git
    cd obelizco.com
    ```
 
-2. Install dependencies:
+2. **Install dependencies**:
    ```bash
    npm install
+   cd netlify/functions && npm install && cd ../..
    ```
 
-3. Set up environment variables:
-   - Copy `.env.example` to `.env`
-   - Update the environment variables in `.env`
+3. **Set up environment variables**:
+   ```bash
+   cp .env.example .env
+   # Update the .env file with your configuration
+   ```
 
-### Development
+4. **Start the development server**:
+   ```bash
+   # In one terminal (frontend)
+   npm run dev
 
-To start the development server:
+   # In another terminal (Netlify Functions)
+   npx netlify dev
+   ```
 
-```bash
-npm run dev
-```
+### Available Scripts
 
-This will start the Vite development server with hot module replacement.
+- `npm run dev`: Start Vite development server
+- `npm run build`: Build for production
+- `npm run preview`: Preview production build locally
+- `npm run test`: Run tests
+- `npx netlify dev`: Run Netlify Functions locally
 
-### Building for Production
+### Environment Variables
 
-To build the application for production:
-
-```bash
-npm run build
-```
-
-The built files will be in the `dist` directory.
+See [TERMINOLOGY.md](TERMINOLOGY.md) for detailed information about required environment variables.
 
 ## 🛠️ Tech Stack
+
+### Frontend
+- **React 18** - UI Library
+- **TypeScript** - Type-safe JavaScript
+- **Vite** - Build tool and dev server
+- **Tailwind CSS** - Utility-first CSS framework
+- **React Router** - Client-side routing
+
+### Backend
+- **Netlify Functions** - Serverless functions
+- **Stripe** - Payment processing
+- **Drizzle ORM** - TypeScript ORM for database
+- **PostgreSQL** - Primary database
+
+### Development Tools
+- **ESLint** - Code linting
+- **Prettier** - Code formatting
+- **Husky** - Git hooks
+- **Jest** - Testing framework
 
 - **Frontend**: React 18, TypeScript, Vite
 - **Styling**: Tailwind CSS

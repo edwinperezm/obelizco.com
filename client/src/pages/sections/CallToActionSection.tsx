@@ -1,42 +1,16 @@
 import { useState, useEffect } from 'react';
-import { loadStripe } from '@stripe/stripe-js';
 import { ArrowRightIcon, CheckCircleIcon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { 
-  Carousel, 
-  CarouselContent, 
-  CarouselItem, 
-  CarouselNext, 
-  CarouselPrevious,
-  type CarouselApi 
-} from '@/components/ui/carousel';
-
-// Simple Link component for navigation
-const Link = ({ to, children, className = '' }: { to: string; children: React.ReactNode; className?: string }) => (
-  <a href={to} className={className}>
-    {children}
-  </a>
-);
-
-// Initialize Stripe with your publishable key
-const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY);
+import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious, type CarouselApi } from '@/components/ui/carousel';
+import { handleCheckout, PRODUCTS } from "@/utils/checkout";
 
 // Product data with pricing
 const productData = {
-  title: {
-    firstPart: '21 Días',
-    secondPart: {
-      prefix: 'de',
-      highlight: 'Desescolarización',
-    },
-  },
-  description: 'Reconéctate con el aprendizaje auténtico, con una mirada reestructurada, acertiva y real.',
-  price: {
-    amount: '15',
-    currency: 'USD',
-  },
+  title: 'Journal de 21 Días de Desescolarización',
+  price: 29.00,
   features: [
+    { icon: <CheckCircleIcon className="w-3 h-3 text-[#009496]" />, text: 'Acceso inmediato' },
     { icon: <CheckCircleIcon className="w-3 h-3 text-[#009496]" />, text: 'Descarga inmediata' },
     { icon: <CheckCircleIcon className="w-3 h-3 text-[#009496]" />, text: 'Pago único' },
     { icon: <CheckCircleIcon className="w-3 h-3 text-[#009496]" />, text: 'Acceso de por vida' },
@@ -51,59 +25,40 @@ export const CallToActionSection = (): JSX.Element => {
   const [current, setCurrent] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
-  const [count, setCount] = useState(0);
 
-  const handleCheckout = async (e: React.MouseEvent) => {
+  const handleCheckoutClick = async (e: React.MouseEvent) => {
     e.preventDefault();
     setIsLoading(true);
     setError('');
-
+    
     try {
-      const response = await fetch('/api/payments/create-checkout-session', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          // Using one-time payment for $1
-          productName: productData.title.firstPart + ' ' + productData.title.secondPart.highlight,
-          amount: 100, // $1.00 in cents
-          currency: 'usd',
-        }),
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        throw new Error(errorData.message || 'Failed to create checkout session');
-      }
-
-      const { url } = await response.json();
-      
-      if (url) {
-        window.location.href = url;
-      } else {
-        throw new Error('No checkout URL returned from server');
-      }
-      
+      await handleCheckout(PRODUCTS.journal.name, PRODUCTS.journal.price, PRODUCTS.journal.currency);
     } catch (err) {
+      setError('No se pudo iniciar el pago. Por favor intenta de nuevo.');
       console.error('Checkout error:', err);
-      setError('Failed to start checkout. Please try again.');
+    } finally {
       setIsLoading(false);
     }
   };
 
   useEffect(() => {
     if (!api) {
-      return
+      return;
     }
 
-    setCount(api.scrollSnapList().length)
-    setCurrent(api.selectedScrollSnap() + 1)
+    setCurrent(api.selectedScrollSnap() + 1);
 
-    api.on("select", () => {
-      setCurrent(api.selectedScrollSnap() + 1)
-    })
-  }, [api])
+    const onSelect = () => {
+      setCurrent(api.selectedScrollSnap() + 1);
+    };
+
+    api.on('select', onSelect);
+    api.on('reInit', onSelect);
+
+    return () => {
+      api.off('select', onSelect);
+    };
+  }, [api]);
 
   // Product images for carousel
   const productImages = [
@@ -138,39 +93,6 @@ export const CallToActionSection = (): JSX.Element => {
       alt: "21 Días de Desescolarización - Página 6"
     }
   ];
-
-  // Product data
-  const productData = {
-    title: {
-      firstPart: "Journal-21 Días",
-      secondPart: {
-        prefix: "de",
-        highlight: "Desescolarización",
-      },
-    },
-    description:
-      "Reconéctate con el aprendizaje auténtico, con una mirada reestructurada, acertiva y real.",
-    price: {
-      amount: "$15",
-      currency: "USD",
-    },
-    features: [
-      {
-        icon: <CheckCircleIcon className="w-3 h-3 text-[#009496]" />,
-        text: "Descarga inmediata",
-      },
-      {
-        icon: (
-          <CheckCircleIcon className="w-[13.33px] h-[13.33px] text-[#009496]" />
-        ),
-        text: "Pago\u00A0\u00A0único",
-      },
-    ],
-    actions: [
-      { text: "Ver más", icon: <ArrowRightIcon className="w-6 h-6" /> },
-      { text: "Experiencia", icon: <ArrowRightIcon className="w-6 h-6" /> },
-    ],
-  };
 
   return (
     <section className="flex flex-col items-center justify-center px-28 py-20 relative self-stretch w-full flex-[0_0_auto] overflow-hidden bg-[linear-gradient(180deg,rgba(255,243,234,1)_0%,rgba(255,255,255,1)_100%)]">
@@ -233,25 +155,13 @@ export const CallToActionSection = (): JSX.Element => {
           {/* Title */}
           <div className="inline-flex items-start pl-0 pr-2.5 py-2.5 flex-col relative flex-[0_0_auto]">
             <h1 className="relative w-fit mt-[-1.00px] [font-family:'DM_Serif_Display',Helvetica] font-normal text-[#00242c] text-[62px] tracking-[0] leading-[62px] whitespace-nowrap">
-              {productData.title.firstPart}
+              {productData.title}
             </h1>
-
-            <div className="inline-flex flex-col items-center justify-center gap-2.5 relative flex-[0_0_auto]">
-              <div className="inline-flex items-start gap-2.5 relative flex-[0_0_auto]">
-                <span className="relative w-fit mt-[-1.00px] [font-family:'DM_Serif_Display',Helvetica] font-normal text-[#00242c] text-[62px] tracking-[0] leading-[62px] whitespace-nowrap">
-                  {productData.title.secondPart.prefix}
-                </span>
-
-                <span className="relative w-fit mt-[-1.00px] [font-family:'DM_Serif_Display',Helvetica] font-normal text-[#e54f01] text-[62px] tracking-[0] leading-[62px] whitespace-nowrap">
-                  {productData.title.secondPart.highlight}
-                </span>
-              </div>
-            </div>
           </div>
 
           {/* Description */}
           <p className="relative self-stretch [font-family:'Geist',Helvetica] font-normal text-[#00242c] text-[22px] tracking-[0] leading-[30.8px]">
-            {productData.description}
+            Reconéctate con el aprendizaje auténtico, con una mirada reestructurada, acertiva y real.
           </p>
 
           {/* Price and Buy Button */}
@@ -259,7 +169,7 @@ export const CallToActionSection = (): JSX.Element => {
             <div className="flex flex-col items-start justify-center gap-[30px] relative self-stretch w-full flex-[0_0_auto]">
               <div className="flex flex-col items-start justify-center gap-2 w-full">
                 <Button
-                  onClick={handleCheckout}
+                  onClick={handleCheckoutClick}
                   disabled={isLoading}
                   className="h-14 px-8 py-4 rounded-full border-b-2 [border-bottom-style:solid] border-[#e54f01] shadow-[5px_5px_20px_#0000001a] bg-[linear-gradient(180deg,rgba(249,115,22,1)_0%,rgba(230,80,2,1)_100%)] [font-family:'Geist',Helvetica] font-semibold text-white text-lg hover:opacity-90 transition-opacity ml-0 md:ml-0"
                 >

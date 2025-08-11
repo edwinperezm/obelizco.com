@@ -1,4 +1,4 @@
-import type { Handler, HandlerContext, HandlerResponse } from '@netlify/functions';
+import type { HandlerEvent, HandlerContext, HandlerResponse } from '@netlify/functions';
 import { getEnv } from '../utils/types';
 import { createRequestLogger } from '../utils/logger';
 
@@ -47,7 +47,7 @@ const formatBytes = (bytes: number, decimals = 2): string => {
 /**
  * Health check handler
  */
-export const healthCheckHandler: Handler = async (event, context: HandlerContext): Promise<HandlerResponse> => {
+const healthCheckHandler = async (event: HandlerEvent, context: HandlerContext): Promise<HandlerResponse> => {
   const logger = createRequestLogger(context);
   
   try {
@@ -92,9 +92,14 @@ export const healthCheckHandler: Handler = async (event, context: HandlerContext
     
     return {
       statusCode: 200,
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 
+        'Content-Type': 'application/json',
+        'access-control-allow-origin': '*',
+        'access-control-allow-methods': 'GET,OPTIONS',
+        'access-control-allow-headers': 'Content-Type,Authorization'
+      },
       body: JSON.stringify(response)
-    };
+    } as HandlerResponse;
   } catch (error: unknown) {
     const errorMessage = error instanceof Error ? error.message : 'Unknown error';
     logger.error('Health check failed', { 
@@ -104,7 +109,12 @@ export const healthCheckHandler: Handler = async (event, context: HandlerContext
     
     return {
       statusCode: 500,
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 
+        'Content-Type': 'application/json',
+        'access-control-allow-origin': '*',
+        'access-control-allow-methods': 'GET,OPTIONS',
+        'access-control-allow-headers': 'Content-Type,Authorization'
+      },
       body: JSON.stringify({
         status: 'error',
         message: 'Health check failed',
@@ -113,9 +123,11 @@ export const healthCheckHandler: Handler = async (event, context: HandlerContext
           stack: error instanceof Error ? error.stack : undefined
         })
       })
-    };
+    } as HandlerResponse;
   }
 };
 
-// Export the handler with middleware
-export const handler = healthCheckHandler;
+// Export the handler
+export const handler = async (event: HandlerEvent, context: HandlerContext) => {
+  return healthCheckHandler(event, context);
+};

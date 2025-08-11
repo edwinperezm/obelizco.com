@@ -1,12 +1,14 @@
 import type { Handler, HandlerEvent, HandlerContext, HandlerResponse } from '@netlify/functions';
-import { healthCheckHandler, createCheckoutSession } from './handlers';
 import { createRequestLogger } from './utils/logger';
-import { isError } from './utils/error';
+
+// Import handlers with proper typing
+import { handler as healthCheckHandler } from './handlers/health';
+import { handler as createCheckoutSession } from './handlers/checkout';
 
 // Helper function to create consistent responses
-const json = (
+const createResponse = (
   statusCode: number, 
-  data?: unknown, 
+  body: unknown = '', 
   extraHeaders: Record<string, string> = {}
 ): HandlerResponse => ({
   statusCode,
@@ -17,67 +19,66 @@ const json = (
     'access-control-allow-headers': 'Content-Type,Authorization',
     ...extraHeaders,
   },
-  body: data === undefined ? '' : JSON.stringify(data),
+  body: typeof body === 'string' ? body : JSON.stringify(body)
 });
 
-// Main API handler
-export const handler: Handler = async (
-  event: HandlerEvent,
-  context: HandlerContext
-): Promise<HandlerResponse> => {
+// Route handlers mapping with type assertion
+const routeHandlers: Record<string, Handler> = {
+  'GET /api/health': healthCheckHandler as unknown as Handler,
+  'POST /api/payments/create-checkout-session': createCheckoutSession as unknown as Handler,
+};
+
+// Main handler implementation
+const handler = async (event: HandlerEvent, context: HandlerContext): Promise<HandlerResponse> => {
   const { httpMethod, path } = event;
   const logger = createRequestLogger(context);
 
-  // Handle preflight requests
+  // Handle CORS preflight
   if (httpMethod === 'OPTIONS') {
-    return json(204);
+    return createResponse(204, '');
   }
 
-  try {
-    // Log the incoming request
-    logger.info(`[${httpMethod}] ${path}`, {
-      event: 'api_request',
-      method: httpMethod,
-      path,
-    });
+  // Log the incoming request
+  logger.info(`[${httpMethod}] ${path}`, {
+    event: 'api_request',
+    method: httpMethod,
+    path,
+  });
 
-    // Route handlers
-    if (httpMethod === 'GET' && path === '/api/health') {
-      return await healthCheckHandler(event, context);
+  // Find matching route
+  const routeKey = `${httpMethod} ${path}`;
+  const routeHandler = routeHandlers[routeKey];
+
+  if (routeHandler) {
+    // Special case for POST requests that need body validation
+    if (httpMethod === 'POST' && !event.body) {
+      return createResponse(400, { error: 'Request body is required' });
     }
-
-    if (httpMethod === 'POST' && path === '/api/payments/create-checkout-session') {
-      if (!event.body) {
-        return json(400, { error: 'Request body is required' });
+    
+    try {
+      const result = await routeHandler(event, context);
+      if (!result) {
+        throw new Error('Handler returned undefined');
       }
-      return await createCheckoutSession(event, context);
+      return result;
+    } catch (error) {
+      logger.error(`Route handler failed for ${routeKey}`, { error });
+      return createResponse(500, { 
+        error: 'Internal Server Error',
+        ...(process.env.NODE_ENV !== 'production' && { 
+          message: error instanceof Error ? error.message : 'Unknown error',
+          stack: error instanceof Error ? error.stack : undefined
+        })
+      });
     }
-
-    // No matching route
-    return json(404, { 
-      error: 'Not Found',
-      message: `No route found for ${httpMethod} ${path}`
-    });
-
-  } catch (error) {
-    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-    const errorStack = error instanceof Error ? error.stack : undefined;
-    
-    logger.error(`API Error: ${errorMessage}`, { 
-      path,
-      method: httpMethod,
-      stack: errorStack 
-    });
-    
-    return json(500, {
-      status: 'error',
-      message: 'Internal Server Error',
-      ...(process.env.NODE_ENV !== 'production' && { 
-        error: errorMessage,
-        stack: errorStack
-      }),
-      timestamp: new Date().toISOString(),
-      requestId: context.awsRequestId,
-    });
   }
+
+  // No matching route
+  return createResponse(404, { 
+    error: 'Not Found',
+    message: `No route found for ${httpMethod} ${path}`
+  });
 };
+
+// Export with type assertion to satisfy Netlify's Handler type
+export { handler };
