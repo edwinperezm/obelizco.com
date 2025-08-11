@@ -1,7 +1,7 @@
 import React from "react";
 import { Separator } from "@/components/ui/separator";
 
-export const SubscriptionSection = (): JSX.Element => {
+export const SubscriptionSection = () => {
   // Footer links data
   const productLinks = [
     { title: "Qué Incluye", href: "#" },
@@ -52,7 +52,7 @@ export const SubscriptionSection = (): JSX.Element => {
           <Separator className="bg-[#004353] mb-8" />
           <div className="flex justify-center">
             <p className="font-['Geist',Helvetica] font-light text-gray-400 text-sm text-center leading-5">
-              © 2024 obe&amp;liz.co - Educación cristocéntrica en el hogar.
+              &copy; 2024 obe&amp;liz.co - Educación cristocéntrica en el hogar.
               Todos los derechos reservados.
             </p>
           </div>

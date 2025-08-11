@@ -64,24 +64,26 @@ paymentsRouter.post('/create-checkout-session', async (req, res) => {
 // Create a payment intent
 paymentsRouter.post('/create-payment-intent', async (req, res) => {
   try {
-    // In a real app, you'd typically get this from your database
     const { amount, currency = 'usd' } = req.body;
 
-    // Create a PaymentIntent with the order amount and currency
+    if (!amount) {
+      return res.status(400).json({ error: 'Amount is required' });
+    }
+
     const paymentIntent = await stripe.paymentIntents.create({
-      amount: Math.round(amount * 100), // Convert to cents
+      amount,
       currency,
       automatic_payment_methods: {
         enabled: true,
       },
     });
 
-    res.send({
+    res.json({
       clientSecret: paymentIntent.client_secret,
     });
   } catch (error) {
     console.error('Error creating payment intent:', error);
-    res.status(500).send({ error: 'Failed to create payment intent' });
+    res.status(500).json({ error: 'Failed to create payment intent' });
   }
 });
 
@@ -125,3 +127,5 @@ paymentsRouter.post('/webhook', async (req, res) => {
   // Return a 200 response to acknowledge receipt of the event
   res.json({ received: true });
 });
+
+export default paymentsRouter;

@@ -3,8 +3,9 @@ import Stripe from 'stripe';
 import { createRequestLogger } from '../utils/logger';
 
 // Initialize Stripe with your secret key
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || '', {
-  apiVersion: '2023-10-16', // Using the correct Stripe API version
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
+  apiVersion: '2023-10-16',
+  typescript: true,
 });
 
 const createResponse = (

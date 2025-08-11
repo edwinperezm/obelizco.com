@@ -1,39 +1,47 @@
-import { users, type User, type InsertUser } from "@shared/schema";
+import { drizzle } from 'drizzle-orm/postgres-js';
+import postgres from 'postgres';
+import * as schema from '../shared/schema';
 
-// modify the interface with any CRUD methods
-// you might need
-
-export interface IStorage {
-  getUser(id: number): Promise<User | undefined>;
-  getUserByUsername(username: string): Promise<User | undefined>;
-  createUser(user: InsertUser): Promise<User>;
+// Database connection
+const connectionString = process.env.DATABASE_URL;
+if (!connectionString) {
+  throw new Error('DATABASE_URL environment variable is not set');
 }
 
-export class MemStorage implements IStorage {
-  private users: Map<number, User>;
-  currentId: number;
+// Create database client
+const client = postgres(connectionString);
+const db = drizzle(client, { schema });
 
-  constructor() {
-    this.users = new Map();
-    this.currentId = 1;
+// Storage interface
+export interface IStorage {
+  getUser(id: number): Promise<schema.User | undefined>;
+  getUserByUsername(username: string): Promise<schema.User | undefined>;
+  createUser(user: schema.InsertUser): Promise<schema.User>;
+}
+
+// Database storage implementation
+export class DatabaseStorage implements IStorage {
+  private db: typeof db;
+
+  constructor(database: typeof db) {
+    this.db = database;
   }
 
-  async getUser(id: number): Promise<User | undefined> {
-    return this.users.get(id);
-  }
-
-  async getUserByUsername(username: string): Promise<User | undefined> {
-    return Array.from(this.users.values()).find(
-      (user) => user.username === username,
-    );
-  }
-
-  async createUser(insertUser: InsertUser): Promise<User> {
-    const id = this.currentId++;
-    const user: User = { ...insertUser, id };
-    this.users.set(id, user);
+  async getUser(id: number): Promise<schema.User | undefined> {
+    const [user] = await this.db.select().from(schema.users).where({ id }).limit(1);
     return user;
   }
+
+  async getUserByUsername(username: string): Promise<schema.User | undefined> {
+    const [user] = await this.db.select().from(schema.users).where({ username }).limit(1);
+    return user;
+  }
+
+  async createUser(user: schema.InsertUser): Promise<schema.User> {
+    const [newUser] = await this.db.insert(schema.users).values(user).returning();
+    return newUser;
+  }
 }
 
-export const storage = new MemStorage();
+// Export a singleton instance
+export const storage = new DatabaseStorage(db);

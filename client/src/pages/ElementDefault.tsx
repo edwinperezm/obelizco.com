@@ -5,9 +5,8 @@ import { FeaturesSection } from "./sections/FeaturesSection";
 import { HeaderSection } from "./sections/HeaderSection";
 import { JournalSection } from "./sections/JournalSection";
 import { SubscriptionSection } from "./sections/SubscriptionSection";
-import { handleCheckout, PRODUCTS } from "@/utils/checkout";
 
-export const ElementDefault = (): JSX.Element => {
+export const ElementDefault = () => {
   return (
     <div className="flex flex-col items-start w-full bg-white">
       <header className="sticky top-0 z-50 flex flex-col items-center justify-center px-28 py-0 w-full bg-[#ffffffcc] backdrop-blur-[2px] backdrop-brightness-[100%] [-webkit-backdrop-filter:blur(2px)_brightness(100%)] shadow-sm">
@@ -23,7 +22,6 @@ export const ElementDefault = (): JSX.Element => {
           <Button
             variant="default"
             className="bg-orange-500 rounded-full hover:bg-orange-600"
-            onClick={() => handleCheckout(PRODUCTS.journal.name, PRODUCTS.journal.price, PRODUCTS.journal.currency)}
           >
             <span className="[font-family:'Geist',Helvetica] font-semibold text-white text-sm">
               Comprar Ahora
