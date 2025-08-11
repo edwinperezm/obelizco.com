@@ -1,6 +1,6 @@
 [build]
   command = "npm run build"
-  publish = "dist"
+  publish = "dist/public"
   functions = "netlify/functions/dist"
 
 [functions]
@@ -19,7 +19,7 @@
   command = "npm run dev"  # Command to start the development server
   targetPort = 3000       # Frontend port
   port = 5000             # Backend port for Netlify Dev
-  publish = "dist"
+  publish = "dist/public"
   autoLaunch = true
 
 # API proxy - must come before the SPA fallback
