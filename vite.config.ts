@@ -23,10 +23,6 @@ export default defineConfig(({ mode }) => {
               <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
               <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Geist:wght@300;400;600;700&family=Instrument+Sans:wght@600&family=Inter&display=swap" rel="stylesheet">
             `
-          ).replace(
-            '</body>',
-            `  <script type="text/javascript" src="https://replit.com/public/js/replit-dev-banner.js" async></script>
-            </body>`
           );
         },
       },
@@ -52,10 +48,9 @@ export default defineConfig(({ mode }) => {
       emptyOutDir: true,
       sourcemap: mode !== 'production',
       minify: mode === 'production' ? 'esbuild' : false,
-      cssCodeSplit: true,
+      cssCodeSplit: false, // Disable CSS code splitting to avoid issues
       chunkSizeWarningLimit: 1000,
       rollupOptions: {
-        input: path.resolve(__dirname, 'client/index.html'),
         output: {
           entryFileNames: 'assets/[name]-[hash].js',
           chunkFileNames: 'assets/[name]-[hash].js',
@@ -64,8 +59,9 @@ export default defineConfig(({ mode }) => {
             react: ['react', 'react-dom', 'react-router-dom'],
             vendor: ['@radix-ui/react-dialog', '@radix-ui/react-dropdown-menu']
           }
-        },
+        }
       },
+      assetsInlineLimit: 0, // Ensure assets are not inlined
     },
     
     css: {
@@ -76,8 +72,8 @@ export default defineConfig(({ mode }) => {
     },
     
     server: {
-      port: 3000,  // Frontend port
-      strictPort: true,  // Don't try another port if in use
+      port: 3000,
+      strictPort: true,
       host: true,  // Listen on all network interfaces
       open: true,  // Open browser on server start
       proxy: {
