@@ -6,9 +6,11 @@ import path from 'path';
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), '');
   
+  const isProduction = mode === 'production';
+  
   return {
     root: './client',
-    base: '/',
+    base: isProduction ? '/' : '/',
     publicDir: path.resolve(__dirname, 'client/public'),
     
     plugins: [
@@ -57,9 +59,10 @@ export default defineConfig(({ mode }) => {
           assetFileNames: 'assets/[name]-[hash][extname]',
           manualChunks: {
             react: ['react', 'react-dom', 'react-router-dom'],
-            vendor: ['@radix-ui/react-dialog', '@radix-ui/react-dropdown-menu']
-          }
-        }
+            stripe: ['@stripe/stripe-js', '@stripe/react-stripe-js'],
+            radix: ['@radix-ui/react-dialog', '@radix-ui/react-dropdown-menu']
+          },
+        },
       },
       assetsInlineLimit: 0, // Ensure assets are not inlined
     },
