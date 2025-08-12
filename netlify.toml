@@ -82,5 +82,5 @@
     Access-Control-Allow-Headers = "Content-Type, Authorization"
 
 [context.production.environment]
-  SECRETS_SCAN_OMIT_PATHS = "dist/**,.git/**,node_modules/**,.netlify/**"
-  SECRETS_SCAN_OMIT_KEYS = "NODE_ENV"
+  SECRETS_SCAN_OMIT_PATHS = "dist/**,.git/**,node_modules/**,.netlify/**,**/.env*"
+  SECRETS_SCAN_OMIT_KEYS = "NODE_ENV,VITE_API_URL"
