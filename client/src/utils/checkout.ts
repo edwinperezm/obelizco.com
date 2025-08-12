@@ -1,17 +1,17 @@
 // Get the base API URL based on the environment
 const getApiBaseUrl = () => {
-  if (import.meta.env.VITE_NETLIFY_DEV === 'true') {
-    return 'http://localhost:5000'; // Changed from 8888 to 5000
+  // In development, use the full URL with port 5000
+  if (import.meta.env.DEV) {
+    return 'http://localhost:5000';
   }
-  return import.meta.env.PROD 
-    ? 'https://obelizco.com' 
-    : 'http://localhost:5000'; // Changed from 8888 to 5000
+  // In production, use the relative path (handled by Netlify redirects)
+  return '';
 };
 
 export const handleCheckout = async (productName: string, amount: number, currency: string = 'usd') => {
   try {
     const baseUrl = getApiBaseUrl();
-    const endpoint = `${baseUrl}/api/payments/create-checkout-session`;
+    const endpoint = `${baseUrl}/.netlify/functions/checkout`;
     console.log('Initiating checkout with:', { 
       endpoint, 
       productName, 

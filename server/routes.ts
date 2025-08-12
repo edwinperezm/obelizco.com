@@ -1,15 +1,13 @@
 import { Express } from 'express';
 import { createServer, Server } from 'http';
-import { authRouter } from './routes/auth';
 import { paymentsRouter } from './routes/payments';
 
 export function registerRoutes(app: Express): Server {
   // API routes
-  app.use('/api/auth', authRouter);
   app.use('/api/payments', paymentsRouter);
 
   // Health check endpoint
-  app.get('/health', (req, res) => {
+  app.get('/health', (_req, res) => {
     res.status(200).json({ status: 'ok' });
   });
 

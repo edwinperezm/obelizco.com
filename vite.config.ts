@@ -33,7 +33,7 @@ export default defineConfig(({ mode }) => {
     define: {
       'import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY': JSON.stringify(env.VITE_STRIPE_PUBLISHABLE_KEY || ''),
       'import.meta.env.FRONTEND_URL': JSON.stringify(env.FRONTEND_URL || 'http://localhost:3000'),
-      'import.meta.env.VITE_API_URL': JSON.stringify(env.VITE_API_URL || 'http://localhost:5000'),
+      'import.meta.env.VITE_API_URL': JSON.stringify(env.VITE_API_URL || 'http://localhost:4000'),
     },
     
     resolve: {
@@ -75,15 +75,16 @@ export default defineConfig(({ mode }) => {
     },
     
     server: {
-      port: 3000,
+      port: parseInt(process.env.FRONTEND_PORT || '3000'),
       strictPort: true,
-      host: true,  // Listen on all network interfaces
-      open: true,  // Open browser on server start
+      host: true,
+      open: true,
       proxy: {
-        '/api': {
-          target: 'http://localhost:5000',  // Backend port
+        '/.netlify/functions': {
+          target: `http://localhost:${process.env.BACKEND_PORT || '4000'}`,
           changeOrigin: true,
-          rewrite: (path) => path.replace(/^\/api/, '')
+          secure: false,
+          ws: true
         }
       },
       fs: {
@@ -99,7 +100,7 @@ export default defineConfig(({ mode }) => {
     },
     
     preview: {
-      port: 5173,
+      port: 5001,  // Frontend preview port (Netlify dev server)
       strictPort: true,
     },
     

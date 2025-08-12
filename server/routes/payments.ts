@@ -1,6 +1,5 @@
 import { Router } from 'express';
 import { stripe } from '../config/stripe';
-import Stripe from 'stripe';
 import { paymentLimiter } from '../middleware/rateLimiter';
 import helmet from 'helmet';
 

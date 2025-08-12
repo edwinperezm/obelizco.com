@@ -65,7 +65,7 @@ Create a `.env` file in this directory with the following variables:
 NODE_ENV=development
 
 # Server
-PORT=8888
+PORT=5000
 
 # Stripe
 STRIPE_SECRET_KEY=your_stripe_secret_key

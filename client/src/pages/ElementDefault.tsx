@@ -1,4 +1,3 @@
-import React from "react";
 import { Button } from "@/components/ui/button";
 import { CallToActionSection } from "./sections/CallToActionSection";
 import { FeaturesSection } from "./sections/FeaturesSection";

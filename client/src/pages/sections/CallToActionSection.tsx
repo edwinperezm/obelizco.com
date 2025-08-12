@@ -10,10 +10,8 @@ const productData = {
   title: 'Journal de 21 Días de Desescolarización',
   price: 29.00,
   features: [
-    { icon: <CheckCircleIcon className="w-3 h-3 text-[#009496]" />, text: 'Acceso inmediato' },
     { icon: <CheckCircleIcon className="w-3 h-3 text-[#009496]" />, text: 'Descarga inmediata' },
     { icon: <CheckCircleIcon className="w-3 h-3 text-[#009496]" />, text: 'Pago único' },
-    { icon: <CheckCircleIcon className="w-3 h-3 text-[#009496]" />, text: 'Acceso de por vida' },
   ],
   actions: [
     { label: 'Comprar ahora', icon: ArrowRightIcon },
@@ -154,7 +152,7 @@ export const CallToActionSection = (): JSX.Element => {
         <div className="flex flex-col w-[586px] items-start gap-[30px] pt-0 pb-8 px-0 relative">
           {/* Title */}
           <div className="inline-flex items-start pl-0 pr-2.5 py-2.5 flex-col relative flex-[0_0_auto]">
-            <h1 className="relative w-fit mt-[-1.00px] [font-family:'DM_Serif_Display',Helvetica] font-normal text-[#00242c] text-[62px] tracking-[0] leading-[62px] whitespace-nowrap">
+            <h1 className="relative w-full [font-family:'DM_Serif_Display',Helvetica] font-normal text-[#00242c] text-[62px] tracking-[0] leading-[62px] break-words">
               {productData.title}
             </h1>
           </div>

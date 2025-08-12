@@ -1,3 +1,4 @@
+import { eq } from 'drizzle-orm';
 import { drizzle } from 'drizzle-orm/postgres-js';
 import postgres from 'postgres';
 import * as schema from '../shared/schema';
@@ -28,12 +29,20 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getUser(id: number): Promise<schema.User | undefined> {
-    const [user] = await this.db.select().from(schema.users).where({ id }).limit(1);
+    const [user] = await this.db
+      .select()
+      .from(schema.users)
+      .where(eq(schema.users.id, id))
+      .limit(1);
     return user;
   }
 
   async getUserByUsername(username: string): Promise<schema.User | undefined> {
-    const [user] = await this.db.select().from(schema.users).where({ username }).limit(1);
+    const [user] = await this.db
+      .select()
+      .from(schema.users)
+      .where(eq(schema.users.username, username))
+      .limit(1);
     return user;
   }
 

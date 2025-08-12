@@ -9,12 +9,16 @@
   NPM_CONFIG_PRODUCTION = "false"
 
 [dev]
-  framework = "#custom"
-  command = "npm run dev"
-  targetPort = 5173
-  port = 8888
+  framework = "vite"
+  command = "npm run dev:frontend"
+  targetPort = 3001
+  port = 4000
   publish = "dist/public"
   functions = "netlify/functions/dist"
+  
+[functions]
+  node_bundler = "esbuild"
+  external_node_modules = ["@netlify/functions"]
 
 [build.processing]
   skip_processing = false
@@ -33,22 +37,18 @@
 [build.processing.images]
   compress = true
 
-# Handle static assets first
 [[headers]]
   for = "/assets/*"
   [headers.values]
     Access-Control-Allow-Origin = "*"
     Cache-Control = "public, max-age=31536000, immutable"
-    Content-Type = ""  # Let Netlify auto-detect MIME type
 
-# Handle root assets (Vite output)
 [[redirects]]
   from = "/assets/*"
   to = "/assets/:splat"
   status = 200
   force = false
 
-# Security headers
 [[headers]]
   for = "/*"
   [headers.values]
@@ -56,31 +56,20 @@
     X-XSS-Protection = "1; mode=block"
     X-Content-Type-Options = "nosniff"
     Referrer-Policy = "strict-origin-when-cross-origin"
-    Content-Security-Policy = """
-      default-src 'self';
-      script-src 'self' 'unsafe-inline' 'unsafe-eval' https://js.stripe.com https://replit.com;
-      style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
-      img-src 'self' data: https://*.stripe.com;
-      font-src 'self' https://fonts.gstatic.com data:;
-      connect-src 'self' https://api.stripe.com;
-      frame-src 'self' https://js.stripe.com https://hooks.stripe.com;
-    """
+    Content-Security-Policy = "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://js.stripe.com https://replit.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; img-src 'self' data: https://*.stripe.com; font-src 'self' https://fonts.gstatic.com data:; connect-src 'self' https://api.stripe.com; frame-src 'self' https://js.stripe.com https://hooks.stripe.com;"
 
-# API redirects
 [[redirects]]
   from = "/api/*"
   to = "/.netlify/functions/:splat"
   status = 200
   force = true
 
-# SPA fallback
 [[redirects]]
   from = "/*"
   to = "/index.html"
   status = 200
   force = true
 
-# CORS headers for API
 [[headers]]
   for = "/.netlify/functions/*"
   [headers.values]
