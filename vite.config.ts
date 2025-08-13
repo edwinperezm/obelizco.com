@@ -1,117 +1,87 @@
-import { defineConfig, loadEnv } from 'vite';
+// vite.config.ts
+import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import path from 'path';
+import { fileURLToPath } from 'url';
+import { dirname } from 'path';
 
-// https://vitejs.dev/config/
-export default defineConfig(({ mode }) => {
-  const env = loadEnv(mode, process.cwd(), '');
-  
-  const isProduction = mode === 'production';
-  
-  return {
-    root: './client',
-    base: isProduction ? '/' : '/',
-    publicDir: path.resolve(__dirname, 'client/public'),
-    
-    plugins: [
-      react(),
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+
+export default defineConfig({
+  root: 'client',
+  base: '/',
+  publicDir: 'public',
+  plugins: [react()],
+  appType: 'spa',
+  resolve: {
+    alias: [
       {
-        name: 'inject-google-fonts',
-        transformIndexHtml(html) {
-          return html.replace(
-            '<head>',
-            `<head>
-              <link rel="preconnect" href="https://fonts.googleapis.com">
-              <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-              <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Geist:wght@300;400;600;700&family=Instrument+Sans:wght@600&family=Inter&display=swap" rel="stylesheet">
-            `
-          );
+        find: '@',
+        replacement: path.resolve(__dirname, 'client/src')
+      },
+      {
+        find: '@/',
+        replacement: path.resolve(__dirname, 'client/src/') + '/'
+      },
+      {
+        find: '@attached_assets',
+        replacement: path.resolve(__dirname, 'attached_assets')
+      }
+    ]
+  },
+  build: {
+    outDir: 'dist',
+    assetsDir: 'assets',
+    sourcemap: true,
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          react: ['react', 'react-dom'],
+          vendor: ['@radix-ui/react-dialog', '@radix-ui/react-dropdown-menu'],
         },
       },
-    ],
-    
-    define: {
-      'import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY': JSON.stringify(env.VITE_STRIPE_PUBLISHABLE_KEY || ''),
-      'import.meta.env.FRONTEND_URL': JSON.stringify(env.FRONTEND_URL || 'http://localhost:3000'),
-      'import.meta.env.VITE_API_URL': JSON.stringify(env.VITE_API_URL || 'http://localhost:4000'),
     },
-    
-    resolve: {
-      alias: [
-        { find: '@', replacement: path.resolve(__dirname, 'client/src') },
-        { find: '@shared', replacement: path.resolve(__dirname, 'shared') },
-        { find: '@assets', replacement: path.resolve(__dirname, 'client/public') },
-        { find: '@attached_assets', replacement: path.resolve(__dirname, 'attached_assets') }
-      ]
+    assetsInlineLimit: 0,
+  },
+  css: {
+    devSourcemap: true,
+    modules: {
+      localsConvention: 'camelCaseOnly',
     },
-    
-    build: {
-      outDir: '../dist/public',
-      emptyOutDir: true,
-      sourcemap: mode !== 'production',
-      minify: mode === 'production' ? 'esbuild' : false,
-      cssCodeSplit: false, // Disable CSS code splitting to avoid issues
-      chunkSizeWarningLimit: 1000,
-      rollupOptions: {
-        output: {
-          entryFileNames: 'assets/[name]-[hash].js',
-          chunkFileNames: 'assets/[name]-[hash].js',
-          assetFileNames: 'assets/[name]-[hash][extname]',
-          manualChunks: {
-            react: ['react', 'react-dom', 'react-router-dom'],
-            stripe: ['@stripe/stripe-js', '@stripe/react-stripe-js'],
-            radix: ['@radix-ui/react-dialog', '@radix-ui/react-dropdown-menu']
-          },
-        },
+  },
+  server: {
+    port: parseInt(process.env.FRONTEND_PORT || '3001'),
+    strictPort: true,
+    host: true,
+    open: true,
+    proxy: {
+      // Stripe API proxy
+      '/api': {
+        target: `http://localhost:${process.env.BACKEND_PORT || '4000'}`,
+        changeOrigin: true,
+        secure: false,
       },
-      assetsInlineLimit: 0, // Ensure assets are not inlined
-    },
-    
-    css: {
-      devSourcemap: true,
-      modules: {
-        localsConvention: 'camelCaseOnly',
+      // Netlify functions proxy (if still needed)
+      '/.netlify/functions': {
+        target: `http://localhost:${process.env.BACKEND_PORT || '4000'}`,
+        changeOrigin: true,
+        secure: false,
+        ws: true,
       },
     },
-    
-    server: {
-      port: parseInt(process.env.FRONTEND_PORT || '3000'),
-      strictPort: true,
-      host: true,
-      open: true,
-      proxy: {
-        '/.netlify/functions': {
-          target: `http://localhost:${process.env.BACKEND_PORT || '4000'}`,
-          changeOrigin: true,
-          secure: false,
-          ws: true
-        }
-      },
-      fs: {
-        strict: true,
-        allow: [
-          path.resolve(__dirname, 'client'),
-          path.resolve(__dirname, 'shared'),
-          path.resolve(__dirname, 'node_modules'),
-          path.resolve(__dirname, 'attached_assets'),
-        ],
-        deny: ['.env', '.env.*', '*.{pem,crt}'],
-      },
+    fs: {
+      strict: true,
+      allow: [
+        path.resolve(__dirname, 'client'),
+        path.resolve(__dirname, 'shared'),
+        path.resolve(__dirname, 'node_modules'),
+        path.resolve(__dirname, 'attached_assets'),
+      ],
+      deny: ['.env', '.env.*', '*.{pem,crt}'],
     },
-    
-    preview: {
-      port: 5001,  // Frontend preview port (Netlify dev server)
-      strictPort: true,
-    },
-    
-    optimizeDeps: {
-      esbuildOptions: {
-        target: 'es2022',
-      },
-    },
-    
-    esbuild: {
-      target: 'es2022',
-    },
-  };
+  },
+  define: {
+    'process.env': process.env,
+  },
 });

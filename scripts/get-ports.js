@@ -8,8 +8,8 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 async function setupPorts() {
   try {
     // Find available ports
-    const frontendPort = await findFreePort(3000, 10, 100);
-    const backendPort = await findFreePort(4000, 10, 100);
+    const frontendPort = await findFreePort(3000, 1, 100);
+    const backendPort = await findFreePort(4000, 1, 100);
     
     // Update .env file
     const envPath = join(__dirname, '../.env');

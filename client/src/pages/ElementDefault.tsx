@@ -1,39 +1,80 @@
-import { Button } from "@/components/ui/button";
-import { CallToActionSection } from "./sections/CallToActionSection";
-import { FeaturesSection } from "./sections/FeaturesSection";
-import { HeaderSection } from "./sections/HeaderSection";
-import { JournalSection } from "./sections/JournalSection";
-import { SubscriptionSection } from "./sections/SubscriptionSection";
+import React from 'react';
+import { NavBarSection } from './sections/NavBarSection';
+import { HeroSection } from './sections/HeroSection';
+import { ContentSection } from './sections/ContentSection';
+import { ImageSection } from './sections/ImageSection';
+import { NewsletterSection } from './sections/NewsletterSection';
+import { FooterSection } from './sections/FooterSection';
+import { handleCheckout, PRODUCTS } from '../utils/checkout';
+import { Alert, AlertDescription } from '../components/ui/alert';
 
-export const ElementDefault = () => {
+export const ElementDefault: React.FC = () => {
+  const [isLoading, setIsLoading] = React.useState(false);
+  const [error, setError] = React.useState('');
+
+  const handleCheckoutClick = async (e: React.MouseEvent): Promise<void> => {
+    e.preventDefault();
+    setIsLoading(true);
+    setError('');
+
+    try {
+      await handleCheckout(
+        PRODUCTS.journal.name,
+        PRODUCTS.journal.price,
+        PRODUCTS.journal.currency
+      );
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'An error occurred during checkout';
+      setError(errorMessage);
+      console.error('Checkout error:', errorMessage);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   return (
-    <div className="flex flex-col items-start w-full bg-white">
-      <header className="sticky top-0 z-50 flex flex-col items-center justify-center px-28 py-0 w-full bg-[#ffffffcc] backdrop-blur-[2px] backdrop-brightness-[100%] [-webkit-backdrop-filter:blur(2px)_brightness(100%)] shadow-sm">
-        <div className="flex w-[1080px] h-20 items-center justify-between pl-0 pr-[0.01px] py-0">
-          <div className="inline-flex items-center">
-            <img 
-              src="/images/Logo Container-original.svg" 
-              alt="Obelizco Logo" 
-              className="h-8 w-auto"
-            />
-          </div>
+    <div className="flex flex-col min-h-screen">
+      {/* Navbar Section */}
+      <NavBarSection
+        onCheckoutClick={handleCheckoutClick}
+        isLoading={isLoading}
+      />
 
-          <Button
-            variant="default"
-            className="bg-orange-500 rounded-full hover:bg-orange-600"
-          >
-            <span className="[font-family:'Geist',Helvetica] font-semibold text-white text-sm">
-              Comprar Ahora
-            </span>
-          </Button>
+      <main className="flex-1">
+        {/* Hero Section - Carousel on left, H1-subheading, and main CTA */}
+        <HeroSection
+          onCheckoutClick={handleCheckoutClick}
+          isLoading={isLoading}
+        />
+        
+        {/* Content Section - Side-to-side images */}
+        <ContentSection
+          onCheckoutClick={handleCheckoutClick}
+          isLoading={isLoading}
+        />
+        
+        {/* Image Section - Only has an image */}
+        <ImageSection />
+        
+        {/* Newsletter Section */}
+        <NewsletterSection
+          onCheckoutClick={handleCheckoutClick}
+          isLoading={isLoading}
+        />
+        
+        {/* Footer Section */}
+        <FooterSection />
+      </main>
+
+      {error && (
+        <div className="fixed bottom-4 right-4 max-w-md">
+          <Alert variant="destructive">
+            <AlertDescription>{error}</AlertDescription>
+          </Alert>
         </div>
-      </header>
-
-      <CallToActionSection />
-      <HeaderSection />
-      <JournalSection />
-      <FeaturesSection />
-      <SubscriptionSection />
+      )}
     </div>
   );
 };
+
+export default ElementDefault;

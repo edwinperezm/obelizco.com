@@ -1,22 +1,36 @@
 import 'dotenv/config';
 import express, { type Request, Response, NextFunction } from "express";
-import { registerRoutes } from "./routes";
+import { registerRoutes } from "./routes"; 
 import { paymentsRouter } from "./routes/payments";
 import { setupVite, serveStatic, log } from "./vite";
+import apiRouter from './api';
+import cors from 'cors';
+import path from 'path';
+import { createServer } from 'http';
 
 const app = express();
-app.use(express.json());
-app.use(express.urlencoded({ extended: false }));
+const PORT = process.env.PORT ? parseInt(process.env.PORT, 10) : 4000;
 
-app.use((req, res, next) => {
+// Middleware
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+app.use(cors({
+  origin: process.env.NODE_ENV === 'production' 
+    ? process.env.FRONTEND_URL 
+    : 'http://localhost:3001',
+  credentials: true
+}));
+
+// Request logging middleware
+app.use((req: Request, res: Response, next: NextFunction) => {
   const start = Date.now();
   const path = req.path;
   let capturedJsonResponse: Record<string, any> | undefined = undefined;
 
-  const originalResJson = res.json;
-  res.json = function (bodyJson, ...args) {
+  const originalResJson = res.json.bind(res);
+  res.json = function (bodyJson) {
     capturedJsonResponse = bodyJson;
-    return originalResJson.apply(res, [bodyJson, ...args]);
+    return originalResJson(bodyJson);
   };
 
   res.on("finish", () => {
@@ -26,11 +40,6 @@ app.use((req, res, next) => {
       if (capturedJsonResponse) {
         logLine += ` :: ${JSON.stringify(capturedJsonResponse)}`;
       }
-
-      if (logLine.length > 80) {
-        logLine = logLine.slice(0, 79) + "…";
-      }
-
       log(logLine);
     }
   });
@@ -38,34 +47,56 @@ app.use((req, res, next) => {
   next();
 });
 
-// Create HTTP server
-import { createServer } from 'http';
+// Health check endpoint
+app.get('/health', (_req: Request, res: Response) => {
+  res.status(200).json({ status: 'ok' });
+});
+
+// API Routes
+app.use('/api', apiRouter);
+
+// Existing routes
+app.use('/api/payments', paymentsRouter);
+registerRoutes(app);
+
+// Error handling middleware
+app.use((err: Error, _req: Request, res: Response, _next: NextFunction) => {
+  console.error('Error:', err);
+  res.status(500).json({
+    error: 'Internal Server Error',
+    message: process.env.NODE_ENV === 'development' ? err.message : undefined
+  });
+});
+
+// Vite setup for development
+if (process.env.NODE_ENV !== 'production') {
 const server = createServer(app);
-
-(async () => {
-  // Register API routes
-  registerRoutes(app);
-
-  // Register payment routes
-  app.use('/api/payments', paymentsRouter);
-
-  app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
-    const status = err.status || err.statusCode || 500;
-    const message = err.message || "Internal Server Error";
-    res.status(status).json({ message });
-    throw err;
+setupVite(app, server).catch(console.error);
+} else {
+  // Serve static files in production
+  serveStatic(app);
+  app.use('*', (_req: Request, res: Response) => {
+    res.sendFile(path.join(__dirname, '..', 'client', 'dist', 'index.html'));
   });
+}
 
-  // Setup Vite in development mode
-  if (app.get("env") === "development") {
-    await setupVite(app, server);
-  } else {
-    serveStatic(app);
-  }
+// Start server
+const server = app.listen(PORT, () => {
+  log(`Server running on http://localhost:${PORT}`);
+  log(`Environment: ${process.env.NODE_ENV || 'development'}`);
+});
 
-  // Use PORT from environment variable or default to 5001
-  const port = process.env.PORT ? parseInt(process.env.PORT, 10) : 5001;
-  server.listen(port, "0.0.0.0", () => {
-    log(`serving on port ${port}`);
-  });
-})();
+// Handle unhandled promise rejections
+process.on('unhandledRejection', (reason: unknown) => {
+  const error = reason instanceof Error ? reason : new Error(String(reason));
+  log(`Unhandled Rejection: ${error.message}`, 'server');
+  server.close(() => process.exit(1));
+});
+
+// Handle uncaught exceptions
+process.on('uncaughtException', (err: Error) => {
+  log(`Uncaught Exception: ${err.message}`, 'server');
+  server.close(() => process.exit(1));
+});
+
+export default server;

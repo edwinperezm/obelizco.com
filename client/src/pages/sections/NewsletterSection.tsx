@@ -2,12 +2,12 @@ import { SendIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
-interface JournalSectionProps {
+interface NewsletterSectionProps {
   onCheckoutClick: (e: React.MouseEvent) => Promise<void>;
   isLoading: boolean;
 }
 
-export const JournalSection = ({ onCheckoutClick, isLoading }: JournalSectionProps): JSX.Element => {
+export const NewsletterSection = ({ onCheckoutClick, isLoading }: NewsletterSectionProps): JSX.Element => {
   return (
     <section className="w-full py-20 bg-white relative z-10 flex justify-center">
       <div className="w-full max-w-[1080px] px-4">

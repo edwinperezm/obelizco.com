@@ -1,12 +1,12 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import { ElementDefault } from "@/pages/ElementDefault";
-import { CheckoutPage } from "@/pages/CheckoutPage";
-import { SuccessPage } from "@/pages/SuccessPage";
-import { CanceledPage } from "@/pages/CanceledPage";
-import { NotFound } from "@/pages/not-found";
+import { ElementDefault } from "./pages/ElementDefault";
+import { CheckoutPage } from "./pages/CheckoutPage";
+import { SuccessPage } from "./pages/SuccessPage";
+import { CanceledPage } from "./pages/CanceledPage";
+import { NotFound } from "./pages/not-found";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { Toaster } from "@/components/ui/toaster";
-import { TooltipProvider } from "@/components/ui/tooltip";
+import { Toaster } from "./components/ui/toaster";
+import { TooltipProvider } from "./components/ui/tooltip";
 
 // Create a client
 const queryClient = new QueryClient();

@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { CheckCircleIcon } from 'lucide-react';
+import { CheckCircleIcon, ChevronLeftIcon, ChevronRightIcon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Carousel, CarouselContent, CarouselItem, type CarouselApi } from '@/components/ui/carousel';
@@ -49,12 +49,12 @@ const productImages = [
   }
 ];
 
-interface CallToActionSectionProps {
+interface HeroSectionProps {
   onCheckoutClick: (e: React.MouseEvent) => Promise<void>;
   isLoading: boolean;
 }
 
-export const CallToActionSection = ({ onCheckoutClick, isLoading }: CallToActionSectionProps) => {
+export const HeroSection = ({ onCheckoutClick, isLoading }: HeroSectionProps) => {
   const [api, setApi] = useState<CarouselApi>();
   const [current, setCurrent] = useState(0);
   const [error, setError] = useState('');
@@ -89,7 +89,7 @@ export const CallToActionSection = ({ onCheckoutClick, isLoading }: CallToAction
       <div className="w-full max-w-[1080px] mx-auto px-4">
         <div className="flex flex-col md:flex-row items-center justify-between gap-10">
           {/* Product Image Carousel */}
-          <div className="flex-shrink-0">
+          <div className="flex-shrink-0 relative">
             <Carousel 
               setApi={setApi} 
               className="w-full max-w-[413.91px] h-[535.64px]"
@@ -118,6 +118,23 @@ export const CallToActionSection = ({ onCheckoutClick, isLoading }: CallToAction
               </CarouselContent>
             </Carousel>
 
+            {/* Navigation Arrows */}
+            <button
+              onClick={() => api?.scrollPrev()}
+              className="absolute left-4 top-1/2 -translate-y-1/2 w-10 h-10 bg-white/80 hover:bg-white rounded-full shadow-lg flex items-center justify-center transition-all duration-200 z-10"
+              aria-label="Previous image"
+            >
+              <ChevronLeftIcon className="w-5 h-5 text-gray-700" />
+            </button>
+            
+            <button
+              onClick={() => api?.scrollNext()}
+              className="absolute right-4 top-1/2 -translate-y-1/2 w-10 h-10 bg-white/80 hover:bg-white rounded-full shadow-lg flex items-center justify-center transition-all duration-200 z-10"
+              aria-label="Next image"
+            >
+              <ChevronRightIcon className="w-5 h-5 text-gray-700" />
+            </button>
+
             {/* Navigation Dots */}
             <div className="flex justify-center mt-4 gap-2">
               {productImages.map((_, index) => (
@@ -137,32 +154,17 @@ export const CallToActionSection = ({ onCheckoutClick, isLoading }: CallToAction
           {/* Product Information */}
           <div className="flex-1 max-w-[586px]">
             {/* Title */}
-            <h1 className="font-serif text-5xl md:text-6xl font-normal text-[#00242c] leading-tight mb-4">
+            <h1 className="[font-family:'DM_Serif_Display',Helvetica] font-normal text-5xl md:text-6xl text-[#00242c] leading-tight mb-4">
               {productData.title}
             </h1>
 
             {/* Description */}
-            <p className="text-[#00242c] text-xl md:text-2xl leading-relaxed mb-8">
+            <p className="[font-family:'Geist',Helvetica] font-light text-[#00242c] text-xl md:text-2xl leading-relaxed mb-8">
               {productData.description}
             </p>
 
-            {/* Features */}
-            <div className="inline-flex items-center px-5 py-2 bg-[#edf7f5] rounded-[100px] gap-5 mb-8">
-              {productData.features.map((feature, index) => (
-                <div
-                  key={`feature-${index}`}
-                  className="flex items-center gap-2"
-                >
-                  {feature.icon}
-                  <span className="text-[#009496] text-sm leading-5">
-                    {feature.text}
-                  </span>
-                </div>
-              ))}
-            </div>
-
             {/* Price and Buy Button */}
-            <div className="flex flex-col-1 gap-5">
+            <div className="flex items-center gap-8 mb-8">
               <Button
                 onClick={handleCheckoutClickInternal}
                 disabled={isLoading}
@@ -190,9 +192,24 @@ export const CallToActionSection = ({ onCheckoutClick, isLoading }: CallToAction
                 </span>
                 <span className="text-lg text-[#00242c]">USD</span>
               </div>
-
-              {error && <p className="text-sm text-red-600">{error}</p>}
             </div>
+
+            {/* Features */}
+            <div className="inline-flex items-center px-5 py-2 bg-[#edf7f5] rounded-[100px] gap-5">
+              {productData.features.map((feature, index) => (
+                <div
+                  key={`feature-${index}`}
+                  className="flex items-center gap-2"
+                >
+                  {feature.icon}
+                  <span className="text-[#009496] text-sm leading-5">
+                    {feature.text}
+                  </span>
+                </div>
+              ))}
+            </div>
+
+            {error && <p className="text-sm text-red-600 mt-4">{error}</p>}
           </div>
         </div>
       </div>

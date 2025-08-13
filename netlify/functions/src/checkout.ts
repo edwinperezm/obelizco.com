@@ -14,15 +14,21 @@ const handler: Handler = async (event: HandlerEvent) => {
     body: event.body,
   });
 
+  // Define CORS headers
+  const corsHeaders = {
+    'Access-Control-Allow-Origin': 'http://localhost:3001',
+    'Access-Control-Allow-Headers': 'Content-Type',
+    'Access-Control-Allow-Methods': 'POST, OPTIONS',
+    'Access-Control-Allow-Credentials': 'true',
+  };
+
   // Handle CORS preflight
   if (event.httpMethod === 'OPTIONS') {
     return {
       statusCode: 200,
       headers: {
         'Content-Type': 'application/json',
-        'Access-Control-Allow-Origin': '*',
-        'Access-Control-Allow-Headers': 'Content-Type',
-        'Access-Control-Allow-Methods': 'POST, OPTIONS',
+        ...corsHeaders,
       } as Record<string, string>,
       body: '',
     };
@@ -35,9 +41,7 @@ const handler: Handler = async (event: HandlerEvent) => {
       body: JSON.stringify({ error: 'Method Not Allowed' }),
       headers: {
         'Content-Type': 'application/json',
-        'Access-Control-Allow-Origin': '*',
-        'Access-Control-Allow-Methods': 'POST, OPTIONS',
-        'Access-Control-Allow-Headers': 'Content-Type',
+        ...corsHeaders,
       },
     };
   }
@@ -60,7 +64,7 @@ const handler: Handler = async (event: HandlerEvent) => {
         body: JSON.stringify({ error: error.message }),
         headers: {
           'Content-Type': 'application/json',
-          'Access-Control-Allow-Origin': '*',
+          ...corsHeaders,
         },
       };
     }
@@ -82,8 +86,8 @@ const handler: Handler = async (event: HandlerEvent) => {
         },
       ],
       mode: 'payment',
-      success_url: `${process.env.URL || 'http://localhost:5000'}/success?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${process.env.URL || 'http://localhost:5000'}/canceled`,
+      success_url: `http://localhost:3001/success?session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `http://localhost:3001/canceled`,
     });
 
     console.log('Stripe session created:', { sessionId: session.id });
@@ -97,7 +101,7 @@ const handler: Handler = async (event: HandlerEvent) => {
       }),
       headers: {
         'Content-Type': 'application/json',
-        'Access-Control-Allow-Origin': '*',
+        ...corsHeaders,
       },
     };
   } catch (error) {
@@ -113,7 +117,7 @@ const handler: Handler = async (event: HandlerEvent) => {
       }),
       headers: {
         'Content-Type': 'application/json',
-        'Access-Control-Allow-Origin': '*',
+        ...corsHeaders,
       },
     };
   }
