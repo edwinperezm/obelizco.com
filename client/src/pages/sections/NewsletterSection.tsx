@@ -7,44 +7,31 @@ interface NewsletterSectionProps {
   isLoading: boolean;
 }
 
-export const NewsletterSection = ({ onCheckoutClick, isLoading }: NewsletterSectionProps): JSX.Element => {
+export const NewsletterSection = ({ onCheckoutClick, isLoading }: NewsletterSectionProps) => {
   return (
-    <section className="w-full py-20 bg-white relative z-10 flex justify-center">
-      <div className="w-full max-w-[1080px] px-4">
-        <div className="flex items-center gap-[30px] self-stretch w-full flex-col">
-          <div className="flex items-start justify-center gap-1">
-            <h2 className="text-[#00242c] [font-family:'DM_Serif_Display',Helvetica] font-normal text-7xl text-center leading-[72px] whitespace-nowrap">
-              Recibe alertas de
-            </h2>
-
-            <div className="relative pt-0 pb-1.5">
-              <span className="text-[#e54f01] [font-family:'DM_Serif_Display',Helvetica] font-normal text-7xl text-center leading-[72px] whitespace-nowrap">
-                nuevo material
-              </span>
-              <div className="absolute w-[481px] h-2.5 top-[74px] left-0 bg-orange-200 rounded-full opacity-50" />
-            </div>
-          </div>
-
-          <p className="w-[600px] [font-family:'Geist',Helvetica] font-light text-[#00242c] text-[22px] text-center leading-[30.8px]">
-            Subscribete con tu correo y recibe notificaciones cuando lancemos
-            nuevos recursos geniales para tu familia.
+    <section className="w-full pb-16 pt-16 bg-gradient-to-t from-[#fff3ea] to-white">
+      <div className="w-full max-w-[1080px] mx-auto px-4">
+        <div className="text-center">
+          <h2 className="[font-family:'DM_Serif_Display',Helvetica] font-normal text-4xl md:text-5xl text-[#00242c] leading-tight mb-8">
+            Mantente conectado
+          </h2>
+          <p className="[font-family:'Geist',Helvetica] font-light text-[#00242c] text-xl md:text-2xl leading-relaxed mb-16 max-w-3xl mx-auto">
+            Recibe contenido exclusivo sobre educación en casa y recursos para transformar la experiencia de aprendizaje de tu familia.
           </p>
-        </div>
-
-        <div className="flex flex-col items-center gap-5">
-          <div className="flex w-[832px] items-start gap-6">
-            <Input
-              className="flex-1 min-h-14 px-8 py-2.5 bg-white rounded-full border border-solid border-[#d7d7d7] [font-family:'Geist',Helvetica] font-light text-lg text-center"
-              placeholder="Escribe tu mejor email"
+          
+          <div className="flex flex-col sm:flex-row gap-6 max-w-lg mx-auto">
+            <Input 
+              type="email" 
+              placeholder="Tu correo electrónico"
+              className="flex-1 h-14 px-6 text-lg border-2 border-gray-300 focus:border-[#f97316] rounded-full shadow-sm focus:shadow-md transition-all duration-200"
             />
-
             <Button 
-              className="min-h-14 px-8 py-2.5 bg-orange-500 rounded-full [font-family:'Instrument_Sans',Helvetica] font-semibold text-white text-lg hover:bg-orange-600 disabled:opacity-50 disabled:cursor-not-allowed"
               onClick={onCheckoutClick}
               disabled={isLoading}
+              className="h-14 px-8 bg-gradient-to-b from-[#f97316] to-[#e65002] hover:from-[#e65002] hover:to-[#d44002] text-white font-bold text-lg rounded-full shadow-lg hover:shadow-xl transition-all duration-200"
             >
-              <SendIcon className="w-[13.33px] h-[10.67px] mr-2.5" />
-              {isLoading ? 'Procesando...' : 'Subscribete'}
+              <SendIcon className="w-5 h-5 mr-2" />
+              Suscribirse
             </Button>
           </div>
         </div>

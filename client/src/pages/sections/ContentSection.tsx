@@ -71,17 +71,17 @@ export const ContentSection = ({ onCheckoutClick, isLoading }: ContentSectionPro
   ];
 
   return (
-    <section className="flex flex-col items-center justify-center gap-[60px] p-20 bg-[linear-gradient(116deg,rgba(255,255,255,1)_0%,rgba(255,255,255,1)_100%)] w-full">
+    <section className="flex flex-col items-center justify-center gap-[60px] pt-16 pb-16 px-20 bg-[linear-gradient(116deg,rgba(255,255,255,1)_0%,rgba(255,255,255,1)_100%)] w-full">
       <div className="flex flex-col items-center gap-6 max-w-[1080px] w-full">
         <div className="flex items-start justify-center gap-1">
-          <h1 className="text-[#00242c] w-fit mt-[-1.00px] [font-family:'DM_Serif_Display',Helvetica] font-normal text-7xl text-center tracking-[0] leading-[72px] whitespace-nowrap">
+          <h2 className="text-[#00242c] w-fit mt-[-1.00px] [font-family:'DM_Serif_Display',Helvetica] font-normal text-4xl md:text-5xl text-center tracking-[0] leading-tight whitespace-nowrap">
             Qué Incluye el
-          </h1>
+          </h2>
           <div className="relative pt-0 pb-1.5 px-0">
-            <h1 className="text-[#e54f01] w-fit mt-[-1.00px] [font-family:'DM_Serif_Display',Helvetica] font-normal text-7xl text-center tracking-[0] leading-[72px] whitespace-nowrap">
+            <h2 className="text-[#e54f01] w-fit mt-[-1.00px] [font-family:'DM_Serif_Display',Helvetica] font-normal text-4xl md:text-5xl text-center tracking-[0] leading-tight whitespace-nowrap">
               Journal
-            </h1>
-            <div className="absolute w-60 h-2.5 top-[74px] left-0 bg-orange-200 rounded-full opacity-50"></div>
+            </h2>
+            <div className="absolute w-full h-2 top-[36px] md:top-[44px] left-0 bg-orange-200 rounded-full opacity-50"></div>
           </div>
         </div>
         <p className="w-[600px] [font-family:'Geist',Helvetica] font-light text-[#00242c] text-[22px] text-center tracking-[0] leading-[30.8px]">

@@ -4,6 +4,7 @@ import { HeroSection } from './sections/HeroSection';
 import { ContentSection } from './sections/ContentSection';
 import { ImageSection } from './sections/ImageSection';
 import { NewsletterSection } from './sections/NewsletterSection';
+import { BeforeFooterCTASection } from './sections/BeforeFooterCTASection';
 import { FooterSection } from './sections/FooterSection';
 import { handleCheckout, PRODUCTS } from '../utils/checkout';
 import { Alert, AlertDescription } from '../components/ui/alert';
@@ -58,6 +59,12 @@ export const ElementDefault: React.FC = () => {
         
         {/* Newsletter Section */}
         <NewsletterSection
+          onCheckoutClick={handleCheckoutClick}
+          isLoading={isLoading}
+        />
+        
+        {/* Before Footer CTA Section */}
+        <BeforeFooterCTASection
           onCheckoutClick={handleCheckoutClick}
           isLoading={isLoading}
         />

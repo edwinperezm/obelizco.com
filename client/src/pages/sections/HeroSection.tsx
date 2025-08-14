@@ -85,7 +85,7 @@ export const HeroSection = ({ onCheckoutClick, isLoading }: HeroSectionProps) =>
   }, [api]);
 
   return (
-    <section className="w-full py-20 bg-gradient-to-b from-[#fff3ea] to-white z-10">
+    <section className="w-full pt-16 pb-16 bg-gradient-to-b from-[#fff3ea] to-white z-10">
       <div className="w-full max-w-[1080px] mx-auto px-4">
         <div className="flex flex-col md:flex-row items-center justify-between gap-10">
           {/* Product Image Carousel */}
@@ -187,7 +187,7 @@ export const HeroSection = ({ onCheckoutClick, isLoading }: HeroSectionProps) =>
               </Button>
               
               <div className="flex items-baseline gap-2">
-                <span className="font-serif text-[60.66px] leading-none text-[#e54f01]">
+                <span className="[font-family:'DM_Serif_Display',Helvetica] font-normal text-[60.66px] leading-none text-[#e54f01]">
                   ${productData.price.toFixed(0)}
                 </span>
                 <span className="text-lg text-[#00242c]">USD</span>
