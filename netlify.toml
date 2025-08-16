@@ -1,6 +1,6 @@
 [build]
   command = "npm run build"
-  publish = "dist/public"
+  publish = "client/dist"
   functions = "netlify/functions/dist"
 
 [build.environment]
@@ -79,4 +79,4 @@
 
 [context.production.environment]
   SECRETS_SCAN_OMIT_PATHS = "dist/**,.git/**,node_modules/**,.netlify/**,**/.env*"
-  SECRETS_SCAN_OMIT_KEYS = "NODE_ENV,VITE_API_URL"
+  SECRETS_SCAN_OMIT_KEYS = "NODE_ENV,VITE_API_URL,VITE_STRIPE_PUBLISHABLE_KEY"
