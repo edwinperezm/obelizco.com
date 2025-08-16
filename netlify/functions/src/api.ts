@@ -25,6 +25,7 @@ const createResponse = (
 // Route handlers mapping with type assertion
 const routeHandlers: Record<string, Handler> = {
   'GET /api/health': healthCheckHandler as unknown as Handler,
+  'POST /api/stripe': createCheckoutSession as unknown as Handler,
   'POST /api/payments/create-checkout-session': createCheckoutSession as unknown as Handler,
 };
 
