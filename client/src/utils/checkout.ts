@@ -1,8 +1,10 @@
 // client/src/utils/checkout.ts
 const getApiBaseUrl = () => {
+  // Local development: use Express server
   if (import.meta.env.DEV) {
     return 'http://localhost:4000/api/stripe';
   }
+  // Netlify production: use serverless functions
   return '/api/stripe';
 };
 

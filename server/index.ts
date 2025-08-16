@@ -1,11 +1,14 @@
-import 'dotenv/config';
+import dotenv from 'dotenv';
+import path from 'path';
+
+// Load environment variables from server/.env file
+dotenv.config({ path: path.resolve(process.cwd(), 'server', '.env') });
 import express, { type Request, Response, NextFunction } from "express";
 import { registerRoutes } from "./routes"; 
 import { paymentsRouter } from "./routes/payments";
 import { setupVite, serveStatic, log } from "./vite";
 import apiRouter from './api';
 import cors from 'cors';
-import path from 'path';
 import { createServer } from 'http';
 
 const app = express();
@@ -68,10 +71,12 @@ app.use((err: Error, _req: Request, res: Response, _next: NextFunction) => {
   });
 });
 
+// Create HTTP server
+const server = createServer(app);
+
 // Vite setup for development
 if (process.env.NODE_ENV !== 'production') {
-const server = createServer(app);
-setupVite(app, server).catch(console.error);
+  setupVite(app, server).catch(console.error);
 } else {
   // Serve static files in production
   serveStatic(app);
@@ -81,7 +86,7 @@ setupVite(app, server).catch(console.error);
 }
 
 // Start server
-const server = app.listen(PORT, () => {
+server.listen(PORT, () => {
   log(`Server running on http://localhost:${PORT}`);
   log(`Environment: ${process.env.NODE_ENV || 'development'}`);
 });
@@ -90,13 +95,13 @@ const server = app.listen(PORT, () => {
 process.on('unhandledRejection', (reason: unknown) => {
   const error = reason instanceof Error ? reason : new Error(String(reason));
   log(`Unhandled Rejection: ${error.message}`, 'server');
-  server.close(() => process.exit(1));
+  // Don't exit the process, just log the error
 });
 
 // Handle uncaught exceptions
 process.on('uncaughtException', (err: Error) => {
   log(`Uncaught Exception: ${err.message}`, 'server');
-  server.close(() => process.exit(1));
+  // Don't exit the process, just log the error
 });
 
 export default server;

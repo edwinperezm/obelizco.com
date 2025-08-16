@@ -8,8 +8,8 @@ interface BeforeFooterCTASectionProps {
 
 export const BeforeFooterCTASection = ({ onCheckoutClick, isLoading }: BeforeFooterCTASectionProps) => {
   return (
-    <section className="w-full pt-16 pb-16 bg-white">
-      <div className="w-full px-[50px]">
+    <section className="w-full py-8 px-4 sm:pt-12 md:pt-16 sm:pb-12 md:pb-16 bg-white">
+      <div className="w-full px-4 sm:px-8 md:px-[50px]">
         <div 
           className="relative w-full rounded-[20px] bg-gradient-to-b from-[#f97316] to-[#e65002] overflow-hidden"
           style={{
@@ -23,14 +23,14 @@ export const BeforeFooterCTASection = ({ onCheckoutClick, isLoading }: BeforeFoo
           <div className="absolute inset-0 bg-gradient-to-b from-[#f97316]/90 to-[#e65002]/90"></div>
           
           {/* Content */}
-          <div className="relative z-10 flex flex-col max-w-[1080px] mx-auto items-center justify-center text-center py-16 px-8">
+          <div className="relative z-10 flex flex-col max-w-[1080px] mx-auto items-center justify-center text-center py-8 sm:py-12 md:py-16 px-4 sm:px-6 md:px-8">
             {/* Title */}
-            <h2 className="[font-family:'DM_Serif_Display',Helvetica] font-normal text-4xl md:text-5xl text-white leading-tight mb-4">
+            <h2 className="[font-family:'DM_Serif_Display',Helvetica] font-normal text-2xl sm:text-3xl md:text-4xl lg:text-5xl text-white leading-tight mb-3 sm:mb-4">
               ¿Listo para transformar tu educación en casa?
             </h2>
             
             {/* Subheading */}
-            <p className="[font-family:'Geist',Helvetica] font-light text-white text-lg md:text-xl leading-relaxed mb-8 max-w-[600px]">
+            <p className="[font-family:'Geist',Helvetica] font-light text-white text-base sm:text-lg md:text-xl leading-relaxed mb-6 sm:mb-8 max-w-[600px] px-4">
               Únete a miles de familias que ya están viviendo una experiencia educativa auténtica y centrada en Cristo.
             </p>
             
@@ -38,7 +38,7 @@ export const BeforeFooterCTASection = ({ onCheckoutClick, isLoading }: BeforeFoo
             <Button
               onClick={onCheckoutClick}
               disabled={isLoading}
-              className="h-14 px-8 py-4 rounded-full bg-white text-[#e65002] font-semibold text-lg hover:bg-gray-100 transition-colors shadow-lg"
+              className="h-12 sm:h-14 px-6 sm:px-8 py-3 sm:py-4 rounded-full bg-white text-[#e65002] font-semibold text-base sm:text-lg hover:bg-gray-100 transition-colors shadow-lg w-full sm:w-auto max-w-[280px] sm:max-w-none"
             >
               {isLoading ? (
                 <div className="flex items-center">
@@ -49,9 +49,10 @@ export const BeforeFooterCTASection = ({ onCheckoutClick, isLoading }: BeforeFoo
                   Procesando...
                 </div>
               ) : (
-                <div className="flex items-center">
-                  <CheckCircleIcon className="w-5 h-5 mr-2" />
-                  Comprar Ahora - $15 USD
+                <div className="flex items-center justify-center">
+                  <CheckCircleIcon className="w-4 sm:w-5 h-4 sm:h-5 mr-1 sm:mr-2" />
+                  <span className="hidden xs:inline">Comprar Ahora - $15 USD</span>
+                  <span className="xs:hidden">Comprar - $15</span>
                 </div>
               )}
             </Button>

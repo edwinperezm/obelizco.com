@@ -85,14 +85,14 @@ export const HeroSection = ({ onCheckoutClick, isLoading }: HeroSectionProps) =>
   }, [api]);
 
   return (
-    <section className="w-full pt-16 pb-16 bg-gradient-to-b from-[#fff3ea] to-white z-10">
+    <section className="w-full pt-8 sm:pt-12 md:pt-16 pb-8 sm:pb-12 md:pb-16 bg-gradient-to-b from-[#fff3ea] to-white z-10">
       <div className="w-full max-w-[1080px] mx-auto px-4">
-        <div className="flex flex-col md:flex-row items-center justify-between gap-10">
+        <div className="flex flex-col md:flex-row items-center justify-between gap-6 md:gap-10">
           {/* Product Image Carousel */}
-          <div className="flex-shrink-0 relative">
+          <div className="flex-shrink-0 relative w-full md:w-auto">
             <Carousel 
               setApi={setApi} 
-              className="w-full max-w-[413.91px] h-[535.64px]"
+              className="w-full max-w-[320px] sm:max-w-[380px] md:max-w-[413.91px] h-[415px] sm:h-[492px] md:h-[535.64px] mx-auto md:mx-0"
               opts={{
                 align: "start",
                 loop: true,
@@ -101,7 +101,7 @@ export const HeroSection = ({ onCheckoutClick, isLoading }: HeroSectionProps) =>
               <CarouselContent>
                 {productImages.map((image) => (
                   <CarouselItem key={image.id}>
-                    <Card className="relative w-full h-[535.64px] rounded-[10px] overflow-hidden border-none">
+                    <Card className="relative w-full h-[415px] sm:h-[492px] md:h-[535.64px] rounded-[10px] overflow-hidden border-none">
                       <CardContent className="p-0 h-full">
                         <div className="relative w-full h-full">
                           <img 
@@ -121,18 +121,18 @@ export const HeroSection = ({ onCheckoutClick, isLoading }: HeroSectionProps) =>
             {/* Navigation Arrows */}
             <button
               onClick={() => api?.scrollPrev()}
-              className="absolute left-4 top-1/2 -translate-y-1/2 w-10 h-10 bg-white/80 hover:bg-white rounded-full shadow-lg flex items-center justify-center transition-all duration-200 z-10"
+              className="absolute left-2 sm:left-4 top-1/2 -translate-y-1/2 w-8 sm:w-10 h-8 sm:h-10 bg-white/80 hover:bg-white rounded-full shadow-lg flex items-center justify-center transition-all duration-200 z-10"
               aria-label="Previous image"
             >
-              <ChevronLeftIcon className="w-5 h-5 text-gray-700" />
+              <ChevronLeftIcon className="w-4 sm:w-5 h-4 sm:h-5 text-gray-700" />
             </button>
             
             <button
               onClick={() => api?.scrollNext()}
-              className="absolute right-4 top-1/2 -translate-y-1/2 w-10 h-10 bg-white/80 hover:bg-white rounded-full shadow-lg flex items-center justify-center transition-all duration-200 z-10"
+              className="absolute right-2 sm:right-4 top-1/2 -translate-y-1/2 w-8 sm:w-10 h-8 sm:h-10 bg-white/80 hover:bg-white rounded-full shadow-lg flex items-center justify-center transition-all duration-200 z-10"
               aria-label="Next image"
             >
-              <ChevronRightIcon className="w-5 h-5 text-gray-700" />
+              <ChevronRightIcon className="w-4 sm:w-5 h-4 sm:h-5 text-gray-700" />
             </button>
 
             {/* Navigation Dots */}
@@ -152,23 +152,23 @@ export const HeroSection = ({ onCheckoutClick, isLoading }: HeroSectionProps) =>
           </div>
 
           {/* Product Information */}
-          <div className="flex-1 max-w-[586px]">
+          <div className="flex-1 max-w-[586px] text-center md:text-left">
             {/* Title */}
-            <h1 className="[font-family:'DM_Serif_Display',Helvetica] font-normal text-5xl md:text-6xl text-[#00242c] leading-tight mb-4">
+            <h1 className="[font-family:'DM_Serif_Display',Helvetica] font-normal text-3xl sm:text-4xl md:text-5xl lg:text-6xl text-[#00242c] leading-tight mb-3 sm:mb-4">
               {productData.title}
             </h1>
 
             {/* Description */}
-            <p className="[font-family:'Geist',Helvetica] font-light text-[#00242c] text-xl md:text-2xl leading-relaxed mb-8">
+            <p className="[font-family:'Geist',Helvetica] font-light text-[#00242c] text-lg sm:text-xl md:text-2xl leading-relaxed mb-6 sm:mb-8">
               {productData.description}
             </p>
 
             {/* Price and Buy Button */}
-            <div className="flex items-center gap-8 mb-8">
+            <div className="flex flex-col sm:flex-row items-center justify-center md:justify-start gap-4 sm:gap-8 mb-6 sm:mb-8">
               <Button
                 onClick={handleCheckoutClickInternal}
                 disabled={isLoading}
-                className="h-14 px-8 py-4 rounded-full border-b-2 border-b-[#e54f01] shadow-[5px_5px_20px_#0000001a] bg-gradient-to-b from-[#f97316] to-[#e65002] hover:opacity-90 transition-opacity text-lg font-semibold text-white"
+                className="h-12 sm:h-14 px-6 sm:px-8 py-3 sm:py-4 rounded-full border-b-2 border-b-[#e54f01] shadow-[5px_5px_20px_#0000001a] bg-gradient-to-b from-[#f97316] to-[#e65002] hover:opacity-90 transition-opacity text-base sm:text-lg font-semibold text-white w-full sm:w-auto max-w-[280px] sm:max-w-none"
               >
                 {isLoading ? (
                   <div className="flex items-center">
@@ -186,23 +186,23 @@ export const HeroSection = ({ onCheckoutClick, isLoading }: HeroSectionProps) =>
                 )}
               </Button>
               
-              <div className="flex items-baseline gap-2">
-                <span className="[font-family:'DM_Serif_Display',Helvetica] font-normal text-[60.66px] leading-none text-[#e54f01]">
+              <div className="flex items-baseline gap-2 justify-center md:justify-start">
+                <span className="[font-family:'DM_Serif_Display',Helvetica] font-normal text-4xl sm:text-5xl md:text-[60.66px] leading-none text-[#e54f01]">
                   ${productData.price.toFixed(0)}
                 </span>
-                <span className="text-lg text-[#00242c]">USD</span>
+                <span className="text-base sm:text-lg text-[#00242c]">USD</span>
               </div>
             </div>
 
             {/* Features */}
-            <div className="inline-flex items-center px-5 py-2 bg-[#edf7f5] rounded-[100px] gap-5">
+            <div className="inline-flex items-center px-4 sm:px-5 py-2 bg-[#edf7f5] rounded-[100px] gap-3 sm:gap-5 mx-auto md:mx-0">
               {productData.features.map((feature, index) => (
                 <div
                   key={`feature-${index}`}
-                  className="flex items-center gap-2"
+                  className="flex items-center gap-1.5 sm:gap-2"
                 >
                   {feature.icon}
-                  <span className="text-[#009496] text-sm leading-5">
+                  <span className="text-[#009496] text-xs sm:text-sm leading-5">
                     {feature.text}
                   </span>
                 </div>
