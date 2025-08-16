@@ -8,9 +8,9 @@ export const FooterSection = () => {
   ];
 
   return (
-    <footer className="bg-[#00232c] py-16 w-full">
-      <div className="flex flex-col max-w-[1080px] mx-auto gap-8 w-full px-4">
-        <div className="flex items-start gap-20 w-full">
+    <footer className="bg-[#00232c] py-8 md:py-16 w-full">
+      <div className="flex flex-col max-w-[1080px] mx-auto gap-8 w-full px-8">
+        <div className="flex flex-col md:flex-row items-start gap-8 md:gap-20 w-full">
           {/* Logo and description */}
           <div className="flex flex-col items-start gap-[22.5px] flex-1">
             <img 
