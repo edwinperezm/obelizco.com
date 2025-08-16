@@ -1,11 +1,11 @@
 import React from 'react';
-import { NavBarSection } from './sections/NavBarSection';
-import { HeroSection } from './sections/HeroSection';
-import { ContentSection } from './sections/ContentSection';
-import { ImageSection } from './sections/ImageSection';
-import { NewsletterSection } from './sections/NewsletterSection';
-import { BeforeFooterCTASection } from './sections/BeforeFooterCTASection';
-import { FooterSection } from './sections/FooterSection';
+import { NavBarSection } from './sections/01-NavBarSection';
+import { HeroSection } from './sections/02-HeroSection';
+import { ContentSection } from './sections/03-ContentSection';
+import { ImageSection } from './sections/04-ImageSection';
+import { NewsletterSection } from './sections/05-NewsletterSection';
+import { BeforeFooterCTASection } from './sections/06-BeforeFooterCTASection';
+import { FooterSection } from './sections/07-FooterSection';
 import { handleCheckout, PRODUCTS } from '../utils/checkout';
 import { Alert, AlertDescription } from '../components/ui/alert';
 
