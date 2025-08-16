@@ -48,6 +48,7 @@ export default defineConfig(({ mode }) => {
       },
     },
     assetsInlineLimit: 0,
+    copyPublicDir: true,
   },
   css: {
     devSourcemap: true,
