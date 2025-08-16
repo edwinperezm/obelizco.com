@@ -1,5 +1,6 @@
 import { CheckCircleIcon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import ctaBackground from "@attached_assets/21-Días-de-Desescolarización-1Page.webp";
 
 interface BeforeFooterCTASectionProps {
   onCheckoutClick: (e: React.MouseEvent) => Promise<void>;
@@ -13,7 +14,7 @@ export const BeforeFooterCTASection = ({ onCheckoutClick, isLoading }: BeforeFoo
         <div 
           className="relative w-full rounded-[20px] bg-gradient-to-b from-[#f97316] to-[#e65002] overflow-hidden"
           style={{
-            backgroundImage: `url('/images/21-Días-de-Desescolarización-1Page.webp')`,
+            backgroundImage: `url(${ctaBackground})`,
             backgroundSize: 'cover',
             backgroundPosition: 'center',
             backgroundBlendMode: 'overlay'

@@ -1,3 +1,5 @@
+import logo from "@attached_assets/Logo Container-original.svg";
+
 interface NavBarSectionProps {
   onCheckoutClick: (e: React.MouseEvent) => Promise<void>;
   isLoading: boolean;
@@ -8,7 +10,7 @@ export const NavBarSection = ({ onCheckoutClick, isLoading }: NavBarSectionProps
     <nav className="sticky top-0 z-50 w-full bg-white border-b border-gray-200 px-4 py-3 sm:py-4">
       <div className="max-w-[1080px] mx-auto flex items-center justify-between">
         <div className="flex items-center">
-          <img src="/images/Logo Container-original.svg" alt="Obeliz.co" className="h-6 sm:h-8" />
+          <img src={logo} alt="Obeliz.co" className="h-6 sm:h-8" />
         </div>
         <button 
           onClick={onCheckoutClick}

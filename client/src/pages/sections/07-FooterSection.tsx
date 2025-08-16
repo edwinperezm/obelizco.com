@@ -1,4 +1,5 @@
 import { Separator } from "@/components/ui/separator";
+import footerLogo from "@attached_assets/Footer Logo Container-white.svg";
 
 export const FooterSection = () => {
   // Footer links data
@@ -14,7 +15,7 @@ export const FooterSection = () => {
           {/* Logo and description */}
           <div className="flex flex-col items-start gap-[22.5px] flex-1">
             <img 
-              src="/images/Footer Logo Container-white.svg" 
+              src={footerLogo} 
               alt="Obelizco Logo" 
               className="h-8 w-auto"
             />

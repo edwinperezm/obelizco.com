@@ -16,35 +16,42 @@ const productData = {
 };
 
 // Product images for carousel
+import page1 from "@attached_assets/21-Días-de-Desescolarización-1Page.webp";
+import page2 from "@attached_assets/21-Días-de-Desescolarización-2Page.webp";
+import page3 from "@attached_assets/21-Días-de-Desescolarización-3Page.webp";
+import page4 from "@attached_assets/21-Días-de-Desescolarización-4Page.webp";
+import page5 from "@attached_assets/21-Días-de-Desescolarización-5Page.webp";
+import page6 from "@attached_assets/21-Días-de-Desescolarización-6Page.webp";
+
 const productImages = [
   {
     id: 1,
-    src: "/images/21-Días-de-Desescolarización-1Page.webp",
+    src: page1,
     alt: "21 Días de Desescolarización - Página 1"
   },
   {
     id: 2,
-    src: "/images/21-Días-de-Desescolarización-2Page.webp",
+    src: page2,
     alt: "21 Días de Desescolarización - Página 2"
   },
   {
     id: 3,
-    src: "/images/21-Días-de-Desescolarización-3Page.webp",
+    src: page3,
     alt: "21 Días de Desescolarización - Página 3"
   },
   {
     id: 4,
-    src: "/images/21-Días-de-Desescolarización-4Page.webp",
+    src: page4,
     alt: "21 Días de Desescolarización - Página 4"
   },
   {
     id: 5,
-    src: "/images/21-Días-de-Desescolarización-5Page.webp",
+    src: page5,
     alt: "21 Días de Desescolarización - Página 5"
   },
   {
     id: 6,
-    src: "/images/21-Días-de-Desescolarización-6Page.webp",
+    src: page6,
     alt: "21 Días de Desescolarización - Página 6"
   }
 ];
